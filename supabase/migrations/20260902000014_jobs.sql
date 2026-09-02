@@ -70,3 +70,31 @@ comment on table voxi.jobs is
 
 comment on column voxi.jobs.payload is
   'For account_erasure and storage_cleanup this carries the EXACT Storage object keys, captured before any row is deleted. Once turn_content is gone the keys are gone with it and the files orphan permanently. Never delete by prefix wildcard.';
+
+-- account_erasure ordering, for the worker that implements it:
+--
+--   mark account erasing
+--   capture exact Storage object keys and external resource ids
+--   release the Voxi Number with the configured telephony provider
+--   delete Storage objects (never by prefix wildcard)
+--   revoke the Auth identity
+--   revoke external integrations and credentials
+--   delete tenant personal and conversational data
+--   DELETE the voxi_numbers row  <-- only now
+--   redact retained billing records to financial facts only
+--   mark account erased
+--
+-- The Voxi Number has two distinct lifecycles and they must not be confused:
+--
+--   normal operation  the number is released via status and the ROW IS
+--                     RETAINED, because historical Calls reference it and must
+--                     stay interpretable. calls -> voxi_numbers is RESTRICT
+--                     precisely to prevent that.
+--
+--   account erasure   once the provider release has succeeded and every Call
+--                     referencing it is gone, the row is DELETED. RESTRICT is
+--                     satisfied by then. An E.164 is account-identifying
+--                     personal data and must not survive erasure merely because
+--                     the operational path uses RESTRICT — and keeping it would
+--                     also reserve a released number forever against a provider
+--                     that may reassign it.

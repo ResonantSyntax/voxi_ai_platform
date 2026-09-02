@@ -18,15 +18,36 @@ end $$;
 -- 2 · Onboarding ------------------------------------------------------------
 -- Stage 02 removed the old auth trigger because it welded Subscriber identity
 -- to auth.users: subscribers.id WAS auth.users.id. That is the thing being
--- fixed, not the automatic provisioning itself.
+-- fixed, not automatic provisioning itself.
 --
 -- Without a replacement there is no path at all: a new browser user has no
 -- Account, and RLS correctly forbids them creating one, because
 -- current_account_id() returns null for a person with no Subscriber row.
 --
--- So: still a trigger, but the Subscriber now gets its OWN uuid and merely
--- LINKS to the auth user. Pre-auth invited Subscribers stay possible — the
--- claim branch below adopts an existing unlinked row instead of creating one.
+-- Deterministic and unconditional: every new auth user gets a fresh Account and
+-- a fresh Subscriber. There is NO matching on phone, email, name or any other
+-- metadata, and no adoption of an existing Subscriber.
+--
+-- An earlier draft claimed an unlinked Subscriber by matching personal_e164
+-- from auth metadata. That was removed: phone numbers are reused, shared,
+-- mistyped, stale and normalised inconsistently, so the match is not proof of
+-- ownership and a collision would hand a stranger someone else's Account. It
+-- also served a pre-auth invitation flow that does not exist in first
+-- production.
+--
+-- The architecture is preserved regardless — subscribers.id is still an
+-- independently generated Voxi uuid, and auth_user_id is only a link. When
+-- pre-auth Subscribers become real they need an explicit proof-bearing
+-- invitation token, never inference from a phone number.
+--
+-- ATOMICITY: this runs inside the auth.users INSERT transaction. If either
+-- insert fails, the auth user insert rolls back with it, so a person can never
+-- end up authenticated with no Account.
+--
+-- IDEMPOTENCY: there is deliberately no "already exists" guard. If this ever
+-- ran twice for one auth user, subscribers.auth_user_id UNIQUE rejects the
+-- second row and the whole transaction fails loudly, which is the correct
+-- outcome — far better than silently owning two Accounts.
 create or replace function voxi.handle_new_auth_user()
 returns trigger
 language plpgsql
@@ -35,28 +56,22 @@ set search_path = ''
 as $$
 declare
   v_account uuid;
-  v_starter smallint;
+  v_tier    smallint;
 begin
-  -- Already linked (re-run, or a restored user): nothing to do.
-  if exists (select 1 from voxi.subscribers s where s.auth_user_id = new.id) then
-    return new;
+  -- ASSUMPTION FLAGGED FOR CONFIRMATION: a new signup starts on Starter
+  -- entitlement. PRODUCT.md describes onboarding as "account created -> basic
+  -- Voxi setup" without naming an initial Tier, so this is the one value here
+  -- not settled by the conceptual design. No billing policy is invented: no
+  -- subscription row is created, and Entitlement is simply the free level.
+  select t.id into v_tier from voxi.tiers t where t.slug = 'starter';
+  if v_tier is null then
+    raise exception 'tier "starter" is missing; reference data has not been seeded'
+      using errcode = 'no_data_found';
   end if;
 
-  -- Claim branch: an invited Subscriber created before they had an auth
-  -- identity. Adopt the existing row rather than creating a second Account.
-  update voxi.subscribers s
-     set auth_user_id = new.id
-   where s.auth_user_id is null
-     and s.personal_e164 is not distinct from (new.raw_user_meta_data ->> 'phone')
-     and (new.raw_user_meta_data ->> 'phone') is not null;
-  if found then
-    return new;
-  end if;
-
-  select id into v_starter from voxi.tiers where slug = 'starter';
-
+  -- account_status defaults to 'active' per the enum default.
   insert into voxi.accounts (entitlement_tier_id)
-  values (v_starter)
+  values (v_tier)
   returning id into v_account;
 
   insert into voxi.subscribers (account_id, auth_user_id, display_name)
@@ -72,8 +87,10 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function voxi.handle_new_auth_user();
 
--- A Voxi Number is NOT provisioned here. It requires an external provider call
--- that cannot happen inside a database trigger; onboarding enqueues that work.
+-- A Voxi Number is deliberately NOT provisioned here. It requires a network
+-- call to the telephony provider, which must be retryable and must never sit
+-- inside a Postgres trigger holding the auth transaction open. Onboarding
+-- enqueues that work separately.
 
 -- 3 · Answer an Input Request ------------------------------------------------
 -- The single narrow operation the product exposes, replacing a direct UPDATE

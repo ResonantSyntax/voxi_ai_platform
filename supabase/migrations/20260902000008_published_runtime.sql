@@ -22,8 +22,10 @@ create table voxi.runtime_releases (
   -- NULL is an UPDATE that the immutability trigger below would reject —
   -- deleting a Subscriber would have made their Account's deletion fail.
   --
-  -- Free text until a real operator model exists, at which point this becomes
-  -- a foreign key to it.
+  -- SEMANTICS: an audit actor identifier supplied by the trusted platform or
+  -- admin publishing path. NOT a Subscriber foreign key, and not validated by
+  -- the database. Free text until a real operator identity model exists, at
+  -- which point this becomes a foreign key to it.
   published_by  text,
 
   -- RESTRICT, not SET NULL. SET NULL is an UPDATE and the immutability trigger
@@ -50,7 +52,8 @@ create table voxi.runtime_deployment (
   id                 smallint primary key default 1 check (id = 1),
   active_release_id  uuid not null references voxi.runtime_releases on delete restrict,
   updated_at         timestamptz not null default now(),
-  -- Operator identity, same reasoning as runtime_releases.published_by.
+  -- Audit actor identifier from the trusted deployment path, same semantics as
+  -- runtime_releases.published_by. Not a Subscriber, not database-validated.
   updated_by         text
 );
 

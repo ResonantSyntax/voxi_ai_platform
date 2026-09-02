@@ -92,7 +92,7 @@ every Conversation is a Call.
 - **Channel extensions are earned, not symmetrical.** A channel gets its own
   table only when it has real channel-specific persistent data. Call clearly
   does. The in-app channel may need nothing.
-- **Content is a third dimension.** A Turn carries 0..N content parts — text,
+- **Content is a third dimension.** A Turn carries 1..N content parts — text,
   audio, image, document. For v1 telephony, text may be the only populated
   form. `turn.text` must not be assumed sufficient forever.
 
@@ -123,7 +123,7 @@ every Conversation is a Call.
   mutating authoring state at boot inverts ADR-0005 and puts a schema write in
   the crash-loop path. Code/database agreement is proven by CI, publish
   validation and deployment validation instead.
-- **A Turn carries 0..N content parts.** In-app, WhatsApp and Email turns are
+- **A Turn carries 1..N content parts.** In-app, WhatsApp and Email turns are
   genuinely multimodal — text plus documents, or a voice note — so this is known
   domain shape, not speculative abstraction. The physical content schema is not
   locked; only the 1:N relationship is.
@@ -435,7 +435,7 @@ Runtime reads `accounts.entitlement_tier` and never interprets payment state.
 | `conversations` | **The root.** Runtime release, runtime hash, context hash, effective entitlement, timings, lifecycle and enrichment state. **Summary is fields here, not a table** — `summary`, `summary_generated_at`, `summary_model_alias`. There is no `summaries` relation and no version history. Also carries `search_tsv`. |
 | `calls` | Telephony extension. Direction, caller and callee numbers, Voxi Number, SIP and carrier identifiers, arrival, **outcome**. |
 | `conversation_turns` | One append-only row per final contribution: role, sequence, timestamp. |
-| `turn_content` | 0..N content parts per Turn. Text inline; binary by reference into Storage. |
+| `turn_content` | **1..N** content parts per Turn. Text inline; binary by reference into Storage. |
 | `input_requests` | What Voxi needs *from* the Subscriber. 0..N per Conversation. |
 | `conversation_degradations` | 0..N structured records of a Skill unusable at bootstrap. |
 | `tasks` | What the Subscriber must do. Always belongs to a Conversation. |
@@ -451,7 +451,7 @@ Runtime reads `accounts.entitlement_tier` and never interprets payment state.
 ```
 accounts 1─1 subscribers 1─1 voxi_numbers
 accounts 1─N conversations 1─0..1 calls
-conversations 1─N conversation_turns 1─N turn_content
+conversations 1─N conversation_turns 1─N turn_content   (1..N, not 0..N)
 conversations 1─N tasks · input_requests · conversation_degradations · jobs
 conversations N─1 runtime_releases · context_snapshots · channels · modes · tiers
 channels N─M modes  (via channel_modes)
@@ -556,9 +556,19 @@ mark account erasing
   → revoke the Auth identity
   → revoke external integrations and credentials
   → delete tenant personal and conversational data
+  → delete the voxi_numbers row
   → redact retained billing records to financial facts only
   → mark account erased
 ```
+
+**The Voxi Number has two lifecycles and they must not be confused.** In normal
+operation the number is released via `status` and **the row is retained**,
+because historical Calls reference it and must stay interpretable — which is
+why `calls → voxi_numbers` is `RESTRICT`. During erasure, once the provider
+release has succeeded and every referencing Call is gone, the row is
+**deleted**: an E.164 is account-identifying personal data and must not survive
+erasure merely because the operational path uses `RESTRICT`. Retaining it would
+also reserve a released number forever against a provider that may reassign it.
 
 **Capture before delete is the whole reason this cannot be a cascade.** Once
 `turn_content` is gone the object keys are gone with it and the files orphan
@@ -681,8 +691,20 @@ chunk-and-embed architecture, not to a larger keyword index now.
    call sits inside a database transaction.
 7. **Erasure captures external resource keys before deleting the rows that
    reference them.**
-8. **Job insertion is idempotent** on `(job_type, idempotency_key)`.
-9. **`conversations.search_tsv` is derived data**, and its authoritative sources
+8. **Job insertion is idempotent** on `(job_type, idempotency_key)`, which is
+   `NOT NULL` — nullable would make the constraint vacuous for exactly the rows
+   most likely to be double-enqueued.
+9. **A durable Turn is created with at least one Content Part**, in one logical
+   write. For realtime voice that is the final STT Turn and its text Content
+   Part becoming durable together. Postgres cannot express "must have a child"
+   without a deferred constraint trigger, and adding one to force a row the
+   writer always creates anyway is not worth the machinery — so this is a
+   transaction invariant, and belongs in the integration tests.
+10. **A new auth user always receives a fresh Account and a fresh Subscriber**,
+   with no matching on phone, email or any other metadata. The whole thing runs
+   inside the auth insert transaction, so nobody can end up authenticated with
+   no Account.
+11. **`conversations.search_tsv` is derived data**, and its authoritative sources
    are the Conversation and its Tasks. It is refreshed in the **same logical
    operation** as any change to a searchable source: Summary written or
    rewritten, searchable identity or subject changed, or searchable Tasks
