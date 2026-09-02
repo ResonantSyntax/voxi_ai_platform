@@ -38,8 +38,32 @@ spoken-language target (ADR-0002); the market has not been formally scoped.
 
 **Caller** is a second audience Voxi serves without ever signing up. Voxi
 speaks to the Caller; the Subscriber reads the result. `Caller` is telephony
-only — the equivalent noun for an In-app Voice or Text Chat participant has not
-been decided.
+only. On channel-neutral surfaces, show the actual identity — a saved name or
+the number — rather than inventing a generic participant label.
+
+### Cardinality — first production
+
+```
+Account 1 ── 1 Subscriber ── 1 Voxi Number
+```
+
+`Account` (tenancy, ownership, security boundary), `Subscriber` (the human who
+owns and operates Voxi) and the auth identity remain **three separate
+concepts** even at 1:1. A Business Subscriber is still one human operating Voxi
+on behalf of the SME.
+
+Not in first production, and not to be designed around: members, seats, team
+Subscribers, shared inboxes, per-person Task ownership, role-based access,
+collaborative triage, team permissions. `Account 1 → N Subscribers` is
+deferred, and the 1:1 decision must never collapse Account and Subscriber into
+one entity.
+
+### Volume — planning assumption
+
+Consumer volume is low; Business volume is potentially much higher. This is a
+**design constraint, not a measured figure** — no usage numbers exist. It is
+recorded so the Business tier cannot force a later redesign of the Conversation
+information architecture.
 
 ## Product Purpose
 
@@ -179,11 +203,42 @@ externally the UX explains the result.
 - Business receptionist capability scope is not yet settled.
 - Memory does not exist yet. Do not imply that Voxi deliberately retains
   selected long-term facts unless and until Memory is implemented.
-- **Audio is not persisted.** The durable historical Conversation record is
-  textual. Do not design historical audio playback unless this policy is
-  explicitly changed through a product *and* architecture decision. This
-  matches the runtime invariant: transcription happens in flight, audio is not
-  stored.
+- **Realtime voice audio is never retained as historical Conversation media.**
+  Voxi does not record or keep the audio of a Phone Call, an In-app Voice
+  Conversation, or any future realtime WhatsApp Call. Transcription happens in
+  flight and the durable record of realtime voice is textual — Turns and their
+  final textual content.
+- **Asynchronous audio supplied as message content is different.** A WhatsApp
+  voice note is not Voxi recording a Conversation; it is content the sender
+  chose to send through a messaging Channel, and it may be persisted as its
+  original Content Part if that Channel is ever implemented. Architecture
+  language must not claim Voxi can never persist any audio under any Channel.
+  For first production this changes nothing: no audio playback, no waveforms,
+  no historical Call recording, no audio placeholders.
+- **Attention is derived, never stored.**
+  `needs_attention = open_tasks > 0 OR unresolved_input_requests > 0`.
+  No read/unread, seen, new, needs-review or inbox state. Attention is never
+  derived from Call outcome, Conversation lifecycle, enrichment lifecycle,
+  runtime degradation, or from Summary or Transcript prose. Prose-based
+  inference is prohibited outright.
+- **A Task is something the Subscriber must do; an Input Request is something
+  Voxi needs from them.** They are distinct concepts and both feed attention
+  independently. A Conversation carries 0..N Input Requests. The Subscriber
+  answers a specific Input Request directly — never through a general
+  Conversation composer, threaded reply system, or standalone messaging
+  surface.
+- **A Task always belongs to a Conversation.** There are no standalone,
+  manually created Tasks and no global "add Task" entry point.
+- **Call outcome is `handled | voicemail | unresolved | abandoned`.** It belongs
+  to the Call, never to the Conversation, and carries **no attention
+  semantics**. These are domain values, not UI copy — the surface renders them
+  in Voxi's voice. `abandoned` must never be widened into a bucket for every
+  unsuccessful Call.
+- **Conversation state has three independent axes** that compose and must never
+  be pre-collapsed into one status: lifecycle (`active | completed | failed`),
+  enrichment (`pending | processing | completed | failed`), and runtime
+  degradation (independent structured records; a fully enriched Conversation
+  can still be degraded).
 - **Entitlement, not Plan**, determines which capabilities the Subscriber may
   use at runtime. The two diverge during Grace, suspension, and administrative
   override.
@@ -236,11 +291,29 @@ externally the UX explains the result.
   **wrong**, and `CONTEXT.md` ranks old mockups last: visual reference only,
   never overriding product behaviour or architecture.
 
-**Known drift.** Parts of the schema and the architecture documents predate the
-Conversation parent concept and are still written Call-first. `README.md` has
-been aligned. The remainder are recorded decisions: they need a deliberate
-amend-or-supersede call in architecture documentation and Linear, never a
-silent edit here.
+- `docs/architecture/database.md` — the conceptual database design through
+  round 7. Provisional, no DDL.
+- `docs/architecture/glossary-conflicts.md` — product-language issues raised
+  from the database worktree, all resolved.
+
+**Known drift, handed to the architecture side.**
+
+- `docs/architecture/runtime.md` remains Call-first. Invariant 9 resolves
+  `account_id` from the dialled Voxi Number, which is valid for telephony but
+  cannot be the universal bootstrap rule for `voxi_app`, `sms`, `email` or
+  `whatsapp`. Recorded as an architecture handoff item; not solved from the UI
+  worktree.
+- `docs/architecture/database.md` carries residue from the `Exchange` →
+  `Conversation` rename that must be corrected before architecture sign-off:
+  its Central Rule still claims Conversation "never appears in the Subscriber's
+  world", which is wrong and contradicts the same document's terminology map;
+  the channel value `chat` is stale in favour of `voxi_app`; the phrase "what
+  was conversationd" and a rationale rejecting Conversation as the root are
+  rename artifacts; and the "Still open" list names decisions rounds 4–6
+  closed.
+
+The UI shapes against the approved channel-neutral Conversation model, never
+against the legacy Call-rooted implementation.
 
 Absences that must not be filled in by invention: no customers, no
 testimonials, no usage numbers, no pricing figures, no launch date, no
