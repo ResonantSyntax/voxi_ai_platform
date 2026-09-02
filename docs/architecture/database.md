@@ -15,12 +15,14 @@ during this session. Issues found in it are recorded separately in
 > **Conversation** is the bounded communication unit.
 > **Channel** is where it happened.
 > **Mode** is how it operated.
-> **Turns** are what was conversationd.
+> **Turns** are what was exchanged.
 > **Content** is what each Turn contains.
 
-`Conversation` is internal persistence and runtime vocabulary. It is deliberately
-not product language and never appears in the Subscriber's world — there, a
-telephony Conversation is a **Call**, exactly as `CONTEXT.md` defines it.
+`Conversation` is the product's own word, defined in `CONTEXT.md`, and the
+schema uses it unchanged. Product and persistence share one root term
+deliberately — there is nothing to translate between UI, API and database. A
+telephony Conversation is a **Call**; every Call is a Conversation, and not
+every Conversation is a Call.
 
 ## Decided
 
@@ -68,26 +70,28 @@ telephony Conversation is a **Call**, exactly as `CONTEXT.md` defines it.
 
 ### Round 3
 
-- **`Conversation` is the internal root.** One bounded communication episode
-  between Voxi and another participant through a supported channel. Chosen
-  over `Interaction` (on the Call avoid-list in `CONTEXT.md`), `Session`
-  (collides with LiveKit `AgentSession` and Supabase auth sessions),
-  `Conversation` (already plain English describing what a Call is) and
-  `Dialogue` (strains once Email, SMS and attachments arrive).
+- **A channel-neutral root above Call was established.** One bounded
+  communication episode between Voxi and another participant through a
+  supported channel. It was briefly named `Exchange`, because at the time the
+  product glossary had no word for it — `Interaction` was on the Call
+  avoid-list, `Session` collided with LiveKit `AgentSession` and Supabase auth
+  sessions, and `Dialogue` strained once Email and attachments arrived. Round 6
+  retired that name once the product defined **Conversation** for exactly this
+  concept.
 - **Channel and Mode are separate dimensions.** Channel answers *where*:
-  telephony, chat, sms, email, whatsapp. Mode answers *how it operates*:
+  telephony, voxi_app, sms, email, whatsapp. Mode answers *how it operates*:
   realtime_voice or messaging. Voice and text are not channels. A WhatsApp
   Call and a WhatsApp voice note are both audio and behave completely
   differently — the first is realtime, the second is message content.
 - **Channel is reference data, not an enum.** New channels are plausible
-  (Teams, Slack, RCS, Telegram, web chat) and should not require a type
+  (Teams, Slack, RCS, Telegram) and should not require a type
   migration.
 - **Call attaches to Conversation by shared primary key.** `calls.conversation_id` is
   both PK and FK, giving 0..1 Call per Conversation structurally, with no second
   identity for the same communication episode.
 - **Channel extensions are earned, not symmetrical.** A channel gets its own
   table only when it has real channel-specific persistent data. Call clearly
-  does. Chat may need nothing.
+  does. The in-app channel may need nothing.
 - **Content is a third dimension.** A Turn carries 0..N content parts — text,
   audio, image, document. For v1 telephony, text may be the only populated
   form. `turn.text` must not be assumed sufficient forever.
@@ -119,12 +123,12 @@ telephony Conversation is a **Call**, exactly as `CONTEXT.md` defines it.
   mutating authoring state at boot inverts ADR-0005 and puts a schema write in
   the crash-loop path. Code/database agreement is proven by CI, publish
   validation and deployment validation instead.
-- **A Turn carries 0..N content parts.** Chat, WhatsApp and Email turns are
+- **A Turn carries 0..N content parts.** In-app, WhatsApp and Email turns are
   genuinely multimodal — text plus documents, or a voice note — so this is known
   domain shape, not speculative abstraction. The physical content schema is not
   locked; only the 1:N relationship is.
 - **Turn authorship is channel-neutral.** `caller | agent | system` is rejected
-  as telephony vocabulary: an app Chat has no Caller, and `agent` collides with
+  as telephony vocabulary: an in-app Conversation has no Caller, and `agent` collides with
   LiveKit's own terminology. `voxi` is preferred over `agent`.
 - **Channel, Mode and channel_modes are all reference data.** Valid combinations
   are declared rather than assumed, so `sms + realtime_voice` is unrepresentable.
@@ -280,8 +284,14 @@ storage, vector search chunks, Memory, per-Subscriber OAuth credentials.
 
 ## Still open
 
-Carried into round 4: Account versus Subscriber as separate entities, Summary
-placement, Task ownership and optionality, the context snapshot foreign-key
-shape, skill-to-tool representation, Turn and Content structure, participant
-identity on a Turn, and Channel and Mode representation. Deletion semantics,
-indexes, RLS ownership paths and outcome vocabulary follow once those land.
+Nothing this worktree owns. Every database question raised across seven rounds
+is closed: identity strategy, state vocabularies, the Conversation root and its
+channel extensions, Turns and Content, tiers and entitlement, runtime
+publishing and deployment, tools and capabilities, jobs, tenant integrity, RLS
+ownership, deletion semantics and erasure.
+
+Outstanding work is elsewhere: `docs/architecture/runtime.md` is still
+Call-first, and its invariant 9 resolves `account_id` from the dialled Voxi
+Number — correct for telephony, but not a universal bootstrap rule for
+`voxi_app`, `sms`, `email` or `whatsapp`. That is an architecture correction,
+not a schema question.
