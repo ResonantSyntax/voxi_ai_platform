@@ -1,0 +1,14 @@
+{
+  "name": "@voxi/theme",
+  "version": "0.0.0",
+  "private": true,
+  "main": "tailwind-preset.js",
+  "exports": {
+    ".": "./tailwind-preset.js",
+    "./tokens.json": "./tokens.json",
+    "./theme.css": "./theme.css"
+  },
+  "scripts": {
+    "build": "node build.js"
+  }
+}

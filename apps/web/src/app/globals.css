@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "@voxi/theme/theme.css";
+
+/* Voxi is dark-only. mint = Voxi is doing or saying something; lime = done. */
+body {
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}

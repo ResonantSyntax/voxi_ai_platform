@@ -1,0 +1,11 @@
+{
+  "name": "voxi",
+  "private": true,
+  "packageManager": "pnpm@11.0.3",
+  "scripts": {
+    "db:reset": "supabase db reset",
+    "db:test": "psql \"$(supabase status -o env | grep DB_URL | cut -d= -f2-)\" -f supabase/tests/rls_isolation.sql",
+    "db:types": "supabase gen types typescript --project-id kevynftebdaoidljydyf --schema voxi > packages/types/database.ts",
+    "theme": "node packages/theme/build.js"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@voxi/types",
+  "version": "0.0.0",
+  "private": true,
+  "types": "database.ts",
+  "exports": { ".": "./database.ts" }
+}
