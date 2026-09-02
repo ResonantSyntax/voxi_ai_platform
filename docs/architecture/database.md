@@ -382,7 +382,7 @@ case rather than the universal rule.
 
 | Entity | Responsibility |
 | --- | --- |
-| `accounts` | Tenancy, ownership and security boundary. Holds entitlement tier and account status. Contains no personal data, which is what lets it survive erasure as a tombstone. |
+| `accounts` | Tenancy, ownership and security boundary. **Entitlement is a field here, not a table** — `entitlement_tier` referencing `tiers`, written by billing and the only thing the runtime reads — alongside `account_status`. Contains no personal data, which is what lets it survive erasure as a tombstone. |
 | `subscribers` | The human who owns and operates Voxi. Nullable, unique `auth_user_id` so a person can exist before an auth record. |
 | `voxi_numbers` | A number Voxi answers. Surrogate id, `e164` unique — numbers port, get reassigned and get corrected. |
 
@@ -432,7 +432,7 @@ Runtime reads `accounts.entitlement_tier` and never interprets payment state.
 | `channels` | Reference: `telephony`, `voxi_app`, `sms`, `email`, `whatsapp`. |
 | `modes` | Reference: `realtime_voice`, `messaging`. |
 | `channel_modes` | Which modes each channel permits, making `sms + realtime_voice` unrepresentable. |
-| `conversations` | **The root.** Runtime release, runtime hash, context hash, effective entitlement, timings, Summary columns, lifecycle and enrichment state, search vector. |
+| `conversations` | **The root.** Runtime release, runtime hash, context hash, effective entitlement, timings, lifecycle and enrichment state. **Summary is fields here, not a table** — `summary`, `summary_generated_at`, `summary_model_alias`. There is no `summaries` relation and no version history. Also carries `search_tsv`. |
 | `calls` | Telephony extension. Direction, caller and callee numbers, Voxi Number, SIP and carrier identifiers, arrival, **outcome**. |
 | `conversation_turns` | One append-only row per final contribution: role, sequence, timestamp. |
 | `turn_content` | 0..N content parts per Turn. Text inline; binary by reference into Storage. |
@@ -682,6 +682,44 @@ chunk-and-embed architecture, not to a larger keyword index now.
 7. **Erasure captures external resource keys before deleting the rows that
    reference them.**
 8. **Job insertion is idempotent** on `(job_type, idempotency_key)`.
+9. **`conversations.search_tsv` is derived data**, and its authoritative sources
+   are the Conversation and its Tasks. It is refreshed in the **same logical
+   operation** as any change to a searchable source: Summary written or
+   rewritten, searchable identity or subject changed, or searchable Tasks
+   inserted, edited or removed — including the initial enrichment pass that
+   creates them. Task *completion* alone does not refresh it, because status is
+   not part of the search document. Search results are never allowed to be
+   stale with respect to their sources.
+
+## The one open item, and it is not ours
+
+**Rule trigger behaviour.** `CONTEXT.md` says *"Exact Rule trigger behaviour is
+still being designed. Do not invent trigger combinations or limitations unless
+they are already documented elsewhere."* `PRODUCT.md` adds *"Do not infer
+product behaviour from provisional database constraints."*
+
+The live schema already contains `rule_matches_its_trigger`, a CHECK enforcing
+caller-XOR-topic — a limitation the product explicitly has not settled. It was
+correct against the older glossary and is now ahead of the product.
+
+**That constraint must not be carried into the new DDL until the product
+settles the behaviour.** Everything else about `rules` is decided: account
+ownership, tenancy, client CRUD under RLS, cascade on account deletion. Ship
+the table without the trigger constraint, or wait for the product answer —
+but do not let a database constraint quietly define a product rule.
+
+## Pre-DDL verification — done
+
+Verified against `kevynftebdaoidljydyf` before any destructive change:
+
+- `accounts`, `subscribers`, `voxi_numbers`, `calls`, `transcripts`, `tasks`,
+  `rules`, `subscriptions` — **exactly zero rows each**, by count, not estimate
+- `auth.users` — zero rows
+- **zero dependent views, rules or functions** on any of them
+- **zero foreign keys from outside the `voxi` schema**
+
+Nothing is preserved for compatibility. The superseded Call-rooted tables are
+replaced, not migrated.
 
 ## Deferred, deliberately
 
