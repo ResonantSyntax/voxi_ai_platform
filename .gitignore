@@ -8,3 +8,6 @@ dist/
 .DS_Store
 graphify-out/
 .impeccable/config.local.json
+
+# Linked worktrees living inside the repo
+web_ui_build/
