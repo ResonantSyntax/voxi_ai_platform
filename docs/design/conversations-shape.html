@@ -1,0 +1,802 @@
+<title>Voxi Product Surface Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+  /* ------------------------------------------------------------------
+     Voxi is dark-only (PRODUCT.md, Brand Commitments), so this document
+     commits to a single dark world. Every colour is a value from
+     packages/theme/tokens.json; none are invented.
+     ------------------------------------------------------------------ */
+  :root {
+    --canvas:#070a09; --bg:#0b0f0d; --surface:#131916; --surface-2:#1a211e; --surface-3:#242d29;
+    --line-subtle:#171e1b; --line:#242d29; --line-strong:#31403a; --line-control:#3a443f;
+    --mint:#0aef9a; --mint-tint:rgba(10,239,154,.07); --mint-chip:rgba(10,239,154,.14);
+    --mint-line:rgba(10,239,154,.40); --mint-soft:rgba(10,239,154,.28);
+    --lime:#8cdd2c; --lime-tint:rgba(140,221,44,.08); --lime-line:rgba(140,221,44,.35);
+    --text:#ffffff; --text-2:#a9afac; --text-3:#8a918e; --muted:#6b7370; --faint:#4d5551;
+    --danger:#fca5a5; --danger-line:rgba(252,165,165,.38); --danger-tint:rgba(252,165,165,.07);
+
+    --doc:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+    --product:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    --measure:68ch; --col:1080px;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--canvas); color:var(--text-2); font-family:var(--doc);
+         font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:var(--col); margin:0 auto; padding:0 28px 120px; }
+
+  h1,h2,h3,h4 { color:var(--text); font-weight:700; text-wrap:balance; margin:0; }
+  h1 { font-size:clamp(34px,5vw,46px); line-height:1.08; letter-spacing:-.028em; }
+  h2 { font-size:25px; line-height:1.22; letter-spacing:-.018em; }
+  h3 { font-size:17px; line-height:1.35; letter-spacing:-.01em; font-weight:600; }
+  h4 { font-size:13.5px; font-weight:600; letter-spacing:-.005em; }
+  p { margin:0; max-width:var(--measure); }
+  strong { color:var(--text); font-weight:600; }
+
+  .eyebrow { font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.14em;
+             text-transform:uppercase; color:var(--muted); margin:0; }
+  .lede { font-size:17px; line-height:1.6; color:var(--text-2); max-width:60ch; }
+  .note { font-size:13.5px; color:var(--muted); max-width:var(--measure); }
+
+  .masthead { border-bottom:1px solid var(--line); background:linear-gradient(180deg,var(--bg),var(--canvas)); }
+  .masthead-inner { max-width:var(--col); margin:0 auto; padding:64px 28px 40px;
+                    display:flex; flex-direction:column; gap:22px; }
+  .masthead h1 { max-width:18ch; }
+  .provenance { display:flex; flex-wrap:wrap; gap:8px; font-family:var(--mono); font-size:11.5px; }
+  .provenance span { padding:5px 10px; border:1px solid var(--line); border-radius:8px;
+                     background:var(--surface); color:var(--text-3); }
+
+  .chip { display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px;
+          font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px;
+          border-radius:8px; border:1px solid var(--line-strong); background:var(--surface-2);
+          color:var(--text-3); white-space:nowrap; line-height:1.5; }
+  .chip::before { content:""; width:5px; height:5px; border-radius:50%; background:currentColor; flex:none; }
+  .chip.decided { color:var(--lime); border-color:var(--lime-line); background:var(--lime-tint); }
+  .chip.provisional { color:var(--text-2); border-color:var(--line-strong); background:var(--surface-2); }
+  .chip.open { color:var(--danger); border-color:var(--danger-line); background:var(--danger-tint); }
+  .chip.deferred { color:var(--faint); border-color:var(--line); background:transparent; }
+  .chip.changed { color:var(--mint); border-color:var(--mint-soft); background:var(--mint-tint); }
+
+  .legend { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; padding-top:4px; }
+  .legend .l { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); }
+
+  section { padding-top:66px; }
+  .sec-head { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding-bottom:6px;
+              border-bottom:1px solid var(--line-subtle); margin-bottom:24px; }
+  .sec-head .num { font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.06em; }
+  .stack { display:flex; flex-direction:column; gap:18px; }
+  .stack-lg { display:flex; flex-direction:column; gap:30px; }
+
+  pre.tree { font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--text-2);
+             background:var(--surface); border:1px solid var(--line); border-radius:16px;
+             padding:20px 22px; margin:0; overflow-x:auto; }
+  pre.tree b { color:var(--text); font-weight:600; }
+  pre.tree i { color:var(--muted); font-style:normal; }
+  pre.tree u { color:var(--mint); text-decoration:none; }
+  pre.tree s { color:var(--lime); text-decoration:none; }
+  pre.tree em { color:var(--danger); font-style:normal; }
+
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:22px;
+          padding:22px 24px; display:flex; flex-direction:column; gap:12px; }
+  .card.agent { background:var(--mint-tint); border-color:var(--mint-soft); }
+  .card.agent .card-label { color:var(--mint); }
+  .card-label { font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.12em;
+                text-transform:uppercase; color:var(--text-3); }
+  .card-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+  .grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(238px,1fr)); gap:16px; }
+
+  ol.rank { list-style:none; counter-reset:r; margin:0; padding:0; display:flex; flex-direction:column;
+            border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--surface); }
+  ol.rank li { counter-increment:r; display:grid; grid-template-columns:44px 1fr; gap:14px;
+               padding:15px 20px; border-top:1px solid var(--line-subtle); align-items:start; }
+  ol.rank li:first-child { border-top:0; }
+  ol.rank li::before { content:counter(r); font-family:var(--mono); font-size:12px; color:var(--faint); padding-top:3px; }
+  ol.rank .t { color:var(--text); font-weight:600; font-size:14.5px; }
+  ol.rank .d { font-size:13.5px; color:var(--muted); }
+
+  .scroller { overflow-x:auto; border:1px solid var(--line); border-radius:18px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; min-width:700px; font-size:13.5px; }
+  th,td { text-align:left; padding:13px 18px; border-top:1px solid var(--line-subtle); vertical-align:top; }
+  thead th { border-top:0; font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--text-3); background:var(--surface-2); white-space:nowrap; }
+  td .m, td code { font-family:var(--mono); font-size:12.5px; color:var(--text); }
+  .t-muted { color:var(--muted); }
+  .yes { color:var(--lime); } .no { color:var(--faint); } .part { color:var(--text-2); }
+
+  code { font-family:var(--mono); font-size:.9em; color:var(--text); background:var(--surface-2);
+         border:1px solid var(--line); border-radius:6px; padding:1px 5px; }
+
+  .specimen { font-family:var(--product); background:var(--bg); border:1px solid var(--line);
+              border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:4px; }
+  .specimen .sp-label { font-size:11px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--mint); }
+  .specimen .sp-label.done { color:var(--lime); }
+  .specimen .sp-label.neutral { color:var(--text-3); }
+  .specimen .sp-label.bad { color:var(--danger); }
+  .specimen .sp-title { font-size:17px; font-weight:600; color:var(--text); letter-spacing:-.01em; }
+  .specimen .sp-body { font-size:14px; color:var(--text-2); }
+  .specimen .sp-meta { font-size:13px; color:var(--faint); }
+  .specimen .sp-btn { align-self:flex-start; margin-top:8px; font-size:14px; font-weight:700;
+                      color:var(--mint); background:var(--mint-tint); border:1px solid var(--mint-soft);
+                      border-radius:14px; padding:9px 16px; }
+
+  .qa { display:flex; flex-direction:column; gap:14px; }
+  .qa-item { display:grid; grid-template-columns:52px 1fr; gap:16px; padding:18px 20px;
+             background:var(--surface); border:1px solid var(--line); border-radius:18px; align-items:start; }
+  .qa-item .id { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--text-3); padding-top:2px; }
+  .qa-item.q .id { color:var(--danger); }
+  .qa-item .q-t { color:var(--text); font-weight:600; font-size:14.5px; margin-bottom:5px; }
+  .qa-item .q-d { font-size:13.5px; color:var(--muted); }
+  .qa-item .q-d em { color:var(--text-2); font-style:normal; }
+
+  .rule { border-left:2px solid var(--mint-line); background:var(--mint-tint); border-radius:0 14px 14px 0;
+          padding:14px 20px; font-size:14px; color:var(--text-2); max-width:var(--measure); }
+  .rule.warn { border-left-color:var(--danger-line); background:var(--danger-tint); }
+  .rule.done { border-left-color:var(--lime-line); background:var(--lime-tint); }
+
+  ul.plain { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:7px; font-size:14px; }
+  ul.plain li::marker { color:var(--faint); }
+
+  .handoff { border:1px solid var(--lime-line); background:var(--lime-tint); border-radius:22px; padding:26px 28px;
+             display:flex; flex-direction:column; gap:18px; }
+  .handoff h2 { font-size:21px; }
+
+  footer { margin-top:90px; padding-top:26px; border-top:1px solid var(--line); font-size:12.5px;
+           color:var(--faint); display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between; }
+  :focus-visible { outline:2px solid var(--mint); outline-offset:2px; border-radius:4px; }
+
+  @media (max-width:620px) {
+    .masthead-inner { padding:44px 20px 32px; }
+    .wrap { padding:0 20px 90px; }
+    ol.rank li { grid-template-columns:30px 1fr; padding:14px 16px; }
+    .qa-item { grid-template-columns:42px 1fr; padding:16px; }
+    .handoff { padding:20px; }
+  }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Impeccable · shape round 2 · apps/web</p>
+    <h1>Voxi Product Surface Map</h1>
+    <p class="lede">
+      The Conversations surface, re-shaped against the merged database architecture.
+      Q2, Q8 and Q9 are closed; Q4 is answered. Planning only — no React, no
+      <code>DESIGN.md</code>, no implementation.
+    </p>
+    <div class="provenance">
+      <span>CONTEXT.md</span>
+      <span>PRODUCT.md</span>
+      <span>docs/architecture/database.md</span>
+      <span>glossary-conflicts.md</span>
+      <span>docs/adr/0001–0006</span>
+      <span>packages/theme/tokens.json</span>
+    </div>
+    <div class="legend">
+      <span class="l"><span class="chip decided">Decided</span> closed by product</span>
+      <span class="l"><span class="chip changed">Changed</span> revised this round</span>
+      <span class="l"><span class="chip provisional">Provisional</span> proposed, reviewable</span>
+      <span class="l"><span class="chip open">Open</span> blocks implementation</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- What changed --------------------------------------------------- -->
+  <section id="delta" style="padding-top:52px">
+    <div class="sec-head"><span class="num">00</span><h2>What changed since round 1</h2></div>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Area</th><th>Round 1</th><th>Now</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Attention</strong></td><td>open Tasks or “a question Voxi raised”</td><td><code>open_tasks &gt; 0 OR unresolved_input_requests &gt; 0</code> — a structured second term, never prose</td></tr>
+          <tr><td><strong>States</strong></td><td>one list of seven</td><td>two composing axes plus an independent degradation overlay</td></tr>
+          <tr><td><strong>Failed</strong></td><td>unmapped gap</td><td>a first-class product state</td></tr>
+          <tr><td><strong>Input Request</strong></td><td>Q9, no exit from the state</td><td>narrow reply affordance; the block is designed</td></tr>
+          <tr><td><strong>Volume</strong></td><td>unknown, design low</td><td>Consumer low / Business high — search, filters, grouping, cursor paging all ship</td></tr>
+          <tr><td><strong>Density</strong></td><td>“two densities, the hard part”</td><td>one component; density follows layout, not tier</td></tr>
+          <tr><td><strong>Outstanding Tasks panel</strong></td><td>a section on the list page</td><td><span class="chip changed">Cut</span> — the Needs&nbsp;you view already is it</td></tr>
+          <tr><td><strong>Transcript</strong></td><td>“ordered turns”</td><td>Turn → 1..N Content Parts; never <code>turn.text</code></td></tr>
+          <tr><td><strong>Participant noun</strong></td><td>never a role noun</td><td><code>Caller</code> is correct for telephony; identity-first elsewhere</td></tr>
+          <tr><td><strong>Q1 / Q4 / Q8</strong></td><td>open</td><td>closed — no generic noun needed, no handled flag, one Subscriber</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 1 --------------------------------------------------------------- -->
+  <section id="list">
+    <div class="sec-head"><span class="num">01</span><h2>Conversation list structure</h2><span class="chip provisional">Provisional</span></div>
+    <div class="stack-lg">
+      <pre class="tree"><b>Header</b>
+  ├── Conversations + count of what needs you
+  ├── View switch          <i>Needs you · All</i>
+  └── Search               <i>compact by default — see §02</i>
+
+<b>Filter row</b>          <i>Date · Channel — nothing else ships</i>
+  └── Active filter chips  <i>each individually clearable</i>
+
+<b>Grouped list</b>
+  ├── Date group header    <i>Today · Yesterday · Earlier this week · Older</i>
+  └── Conversation row     <i>anatomy in §04</i>
+
+<b>List footer</b>
+  └── Load older           <i>cursor · explicit control, never infinite scroll</i></pre>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-label">Cut this round</span><span class="chip changed">Changed</span></div>
+          <p style="font-size:14px">The separate <strong>Outstanding Tasks</strong> panel is gone.</p>
+          <p class="note">
+            Round 1 put an aggregate of Tasks on the History screen. With attention formalised, the
+            <span class="m">Needs you</span> view <em>is</em> that aggregate — every Conversation in it
+            is there because it has open Tasks or an unresolved Input Request. Two views of one truth,
+            sitting on the same page, would invite them to disagree.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-label">Load older, not infinite scroll</span>
+          <p style="font-size:14px">
+            An explicit control at the end of the list, advancing the cursor.
+          </p>
+          <p class="note">
+            Infinite scroll fights everything this surface is: it makes the end of history unreachable,
+            breaks restoring position on back, and steals focus placement from keyboard users mid-triage.
+            Cursor paging behind a button keeps the architecture honest without any of that.
+            Virtualisation stays out until measured volume earns it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 --------------------------------------------------------------- -->
+  <section id="search">
+    <div class="sec-head"><span class="num">02</span><h2>Search and filter treatment</h2><span class="chip decided">Q2 decided</span></div>
+    <div class="stack-lg">
+      <div class="rule">
+        <strong>Search is present, not prominent.</strong> It ships in first production because a
+        Business Subscriber needs it, but it must not turn a Consumer’s twelve Conversations into a
+        database browser. One field, quiet at rest, that grows into the primary control only once a
+        query is active.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="card-label">Resting state</span>
+          <p style="font-size:14px">A single compact field in the header. No filter panel, no result count, no sort control.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-label">Results state</span><span class="chip provisional">Provisional</span></div>
+          <p style="font-size:14px">
+            Date grouping is <strong>suppressed</strong> while a query is active. Results become one
+            flat ranked list under “<span class="m">N results for “…”</span>”, with a clear control.
+          </p>
+          <p class="note">
+            Grouping a result set by date fights relevance — the reader is looking for one Conversation,
+            not for last Tuesday. Restoring grouping on clear makes the two modes legible as modes.
+          </p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h3>Filters — exactly two</h3>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Filter</th><th>Behaviour</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Date</strong></td><td>Range, written to <code>?from=</code> / <code>?to=</code></td><td>The only filter a Consumer is likely to touch.</td></tr>
+              <tr><td><strong>Channel</strong></td><td>Multi-select, written to <code>?channel=</code></td><td><strong>Data-driven from Channel reference data</strong> — never a hardcoded list, and never a phone/other binary. Renders product labels (Phone Call, In-app Voice, Text Chat), not internal identity (<code>telephony</code>, <code>voxi_app</code>).</td></tr>
+              <tr><td class="t-muted">state · participant · outcome · attention</td><td class="t-muted">Not shipped</td><td class="t-muted">Attention already has a view switch; outcome has no attention meaning and belongs on the detail page. Adding these would build the enterprise panel the thesis rejects.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          With one channel live, the control renders a single option. That is correct and deliberate:
+          a data-driven control that happens to have one value is not the same as a control that
+          assumes telephony, and only the first survives <code>voxi_app</code> shipping.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 --------------------------------------------------------------- -->
+  <section id="grouping">
+    <div class="sec-head"><span class="num">03</span><h2>Date grouping and pagination</h2><span class="chip decided">Decided</span></div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-label">Grouping</span>
+        <p style="font-size:14px"><span class="m">Today · Yesterday · Earlier this week · Older</span>, then calendar dates within Older.</p>
+        <p class="note">
+          Set in the <span class="m">type.label</span> token — 11px/700/1.2 uppercase — the section
+          device the mockup already established. Sticky at ≥ lg, with a matching
+          <code>scroll-margin-top</code> on every row so a focused row is never covered
+          (WCAG 2.4.11). Suppressed while search is active.
+        </p>
+      </div>
+      <div class="card">
+        <span class="card-label">Pagination</span>
+        <p style="font-size:14px">Cursor. Never load a Subscriber’s whole history into one client array.</p>
+        <p class="note">
+          Appending a page must not move existing rows or steal focus: new rows land below, the control
+          stays where it was, and the count announces politely. Virtualisation is deferred until the
+          rendered list actually earns it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 --------------------------------------------------------------- -->
+  <section id="row">
+    <div class="sec-head"><span class="num">04</span><h2>Conversation row anatomy</h2><span class="chip changed">Changed</span></div>
+    <div class="stack-lg">
+      <pre class="tree"><b>Conversation row</b>            <i>the whole row is one link, one tab stop</i>
+  ├── <u>Attention marker</u>        <i>present only when it needs you</i>
+  ├── Identity               <i>saved name, else the number — never a role noun</i>
+  ├── Channel tag            <i>quiet, always present, product label</i>
+  ├── Time
+  ├── <b>Subject</b>                <i>one line, Voxi-authored, truncates</i>
+  ├── Primary state marker   <i>only when not Ready — Live / Processing / Failed / Enrichment failed</i>
+  ├── <em>Degraded marker</em>          <i>independent; composes with any of the above</i>
+  └── <s>Task count</s>              <i>lime when cleared</i></pre>
+
+      <div class="rule">
+        <strong>One component, two densities — and density follows layout, not tier.</strong>
+        In the narrow list pane of the two-pane desktop layout the row is compact: identity, subject
+        and markers on one line. In a full-width single column it is comfortable: subject on its own
+        line with room to breathe.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="card-label">Why not switch on volume</span>
+          <p class="note">
+            Densifying because a Subscriber crossed a row count means the interface changes shape
+            underneath someone who did nothing. Binding density to the container instead is
+            deterministic, testable, and gives the busy Subscriber the compact list anyway — because
+            triaging volume is exactly what the two-pane layout is for.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-label">Why not a density toggle</span>
+          <p class="note">
+            A preference nobody asked for, persisted somewhere, tested in two states forever. The
+            layout already answers the question.
+          </p>
+        </div>
+      </div>
+
+      <p class="rule warn">
+        <strong>The channel tag stays even at 99% telephony.</strong> Hiding it while one channel
+        dominates is precisely how <code>Call</code> quietly becomes the universal parent again.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5 --------------------------------------------------------------- -->
+  <section id="detail">
+    <div class="sec-head"><span class="num">05</span><h2>Conversation detail hierarchy</h2><span class="chip decided">Approved order</span></div>
+    <div class="stack-lg">
+      <ol class="rank">
+        <li><div><div class="t">Identity · time · channel</div><div class="d">Who Voxi spoke with, when, over what.</div></div></li>
+        <li><div><div class="t">Subject</div><div class="d">One Voxi-authored line. The decision point for reading further.</div></div></li>
+        <li><div><div class="t">Response slot <span class="chip changed" style="margin-left:6px">New</span></div><div class="d">Input Requests first, then state banners. Empty and absent when the Conversation is Ready and undegraded.</div></div></li>
+        <li><div><div class="t">Summary</div><div class="d">Voxi speaking. The primary read. <span class="m">agentCard</span>, mint outline.</div></div></li>
+        <li><div><div class="t">Tasks</div><div class="d">Yours to clear.</div></div></li>
+        <li><div><div class="t">Transcript</div><div class="d">Supporting evidence, collapsed by default.</div></div></li>
+        <li><div><div class="t">Channel-specific details</div><div class="d">Telephony facts. Present only for a Call.</div></div></li>
+      </ol>
+
+      <div class="card">
+        <span class="card-label">Why the response slot sits above the Summary</span>
+        <p style="font-size:14px">
+          The approved hierarchy orders <strong>the record</strong>. An Input Request is not part of
+          the record — it is an open request from Voxi that is blocking resolution.
+        </p>
+        <p class="note">
+          Placing it below the Summary would have the Subscriber read the outcome before learning the
+          outcome is incomplete pending their answer. The slot is a container, not a new hierarchy
+          level: when a Conversation is Ready and undegraded it does not render, and the approved
+          order is exactly what remains.
+        </p>
+      </div>
+
+      <p class="rule">
+        <strong>The reading measure holds here at every width.</strong> The list densifies with volume;
+        the Summary and Transcript never do. A Business Subscriber having more Conversations is not a
+        reason to make each one harder to read.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 --------------------------------------------------------------- -->
+  <section id="states">
+    <div class="sec-head"><span class="num">06</span><h2>How the states compose</h2><span class="chip decided">Three axes</span></div>
+    <div class="stack-lg">
+      <div class="rule">
+        <strong>Primary state answers “can I read this yet?”. Degradation answers “how well did Voxi
+        do?”.</strong> Two different questions, so two different slots — never merged into one badge,
+        never pre-composed into a single status enum.
+      </div>
+
+      <div class="stack">
+        <h3>Primary state — lifecycle × enrichment, mutually exclusive</h3>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>State</th><th>Derived from</th><th>Transcript</th><th>Summary</th><th>Tasks</th><th>Outcome</th></tr></thead>
+            <tbody>
+              <tr><td><span class="m" style="color:var(--mint)">Live</span></td><td><code>active</code></td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+              <tr><td><span class="m">Processing</span></td><td><code>completed</code> + <code>pending|processing</code></td><td class="yes">yes</td><td class="part">being written</td><td class="part">being derived</td><td class="yes">yes</td></tr>
+              <tr><td><span class="m">Ready</span></td><td><code>completed</code> + <code>completed</code></td><td class="yes">yes</td><td class="yes">yes</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+              <tr><td><span class="m" style="color:var(--danger)">Enrichment failed</span></td><td><code>completed</code> + <code>failed</code></td><td class="yes">yes</td><td class="no">no</td><td class="no">no</td><td class="yes">yes</td></tr>
+              <tr><td><span class="m" style="color:var(--danger)">Failed</span></td><td><code>failed</code></td><td class="part">partial, if any</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Nothing in the “no” column is ever fabricated to make a page look complete. A Failed
+          Conversation shows the evidence that genuinely exists and says plainly that Voxi could not
+          complete the Call — no invented Summary, no empty Task list implying zero Tasks, no outcome.
+        </p>
+      </div>
+
+      <div class="stack">
+        <h3>Degradation — independent, composing, 1..N</h3>
+        <div class="grid-2">
+          <div class="card">
+            <span class="card-label">What it is</span>
+            <p style="font-size:14px">Voxi continued with reduced capability because part of the published runtime was unavailable. It happens at bootstrap, not during enrichment.</p>
+            <p class="note">A fully enriched, perfectly readable Conversation can still be degraded. <span class="m">Ready + Degraded</span>, <span class="m">Processing + Degraded</span> and <span class="m">Enrichment failed + Degraded</span> are all valid and all render both marks.</p>
+          </div>
+          <div class="card">
+            <span class="card-label">How it renders</span>
+            <p style="font-size:14px">A separate marker on the row and a separate banner in the response slot, naming what Voxi could not do — read from structured degradation records.</p>
+            <p class="note">
+              More than one skill can degrade in one bootstrap, so the banner handles a list, not a
+              boolean. The reason is never parsed out of error prose — ADR-0006 forbids it, and the
+              database stores the fields precisely so the UI does not have to.
+            </p>
+          </div>
+        </div>
+        <p class="rule warn">
+          ADR-0006: degradation <strong>must never become quiet routine</strong>. It is therefore never
+          styled as ambient chrome, and never suppressed because the Conversation otherwise looks fine.
+        </p>
+      </div>
+
+      <div class="stack">
+        <h3>Copy specimens</h3>
+        <div class="grid-3">
+          <div class="specimen">
+            <span class="sp-label neutral">Working on it</span>
+            <span class="sp-title">Summary is still being written</span>
+            <span class="sp-meta">The Transcript is ready to read now</span>
+          </div>
+          <div class="specimen">
+            <span class="sp-label bad">Call failed</span>
+            <span class="sp-title">Voxi couldn’t complete this call</span>
+            <span class="sp-meta">Showing what was captured before it stopped</span>
+          </div>
+          <div class="specimen">
+            <span class="sp-label bad">Reduced capability</span>
+            <span class="sp-title">Voxi couldn’t reach your calendar</span>
+            <span class="sp-meta">It answered without checking availability</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 --------------------------------------------------------------- -->
+  <section id="tasks">
+    <div class="sec-head"><span class="num">07</span><h2>Task treatment</h2><span class="chip decided">Decided</span></div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-label">Shape</span>
+        <p style="font-size:14px">Checkbox, text, source line. Completable from the detail page and inline from the list.</p>
+        <p class="note">
+          A Task always belongs to a Conversation. There is no global “add Task”, no standalone Task
+          creation on this surface, and no Task that exists without a source to link back to.
+        </p>
+      </div>
+      <div class="card">
+        <span class="card-label">Completion</span>
+        <p style="font-size:14px">Optimistic: the checkbox fills lime, attention recalculates, the request follows.</p>
+        <p class="note">
+          On failure, revert <em>and</em> say so inline. A silently reverted checkbox is worse than a
+          slow one — the Subscriber walks away believing they cleared something they did not.
+        </p>
+      </div>
+    </div>
+    <p class="rule done" style="margin-top:16px">
+      <strong>Clearing the last Task does not eject the Conversation.</strong> It stays exactly where
+      it is, visibly settling, until the Subscriber navigates away or changes view. In the two-pane
+      layout this is stronger still: the open Conversation must never vanish from the list pane while
+      it is being read.
+    </p>
+  </section>
+
+  <!-- 8 --------------------------------------------------------------- -->
+  <section id="input">
+    <div class="sec-head"><span class="num">08</span><h2>Input Request treatment</h2><span class="chip decided">Q9 decided</span></div>
+    <div class="stack-lg">
+      <div class="grid-2">
+        <div class="stack">
+          <div class="card agent">
+            <span class="card-label">Product distinction</span>
+            <p style="font-size:14px"><strong>Task</strong> — something I need to do.<br><strong>Input Request</strong> — something Voxi needs from me.</p>
+            <p class="note">Both feed attention independently. A Conversation carries 0..N Input Requests, each answerable on its own.</p>
+          </div>
+          <p class="note">
+            The answer is submitted against <em>this specific request</em>. No general composer, no
+            threaded reply system, no standalone messaging surface — those would turn a bounded
+            question into a chat product as a side effect.
+          </p>
+        </div>
+        <div class="specimen">
+          <span class="sp-label">Voxi needs your input</span>
+          <span class="sp-title">Which account should I use for this?</span>
+          <span class="sp-body">Sarah asked to be invoiced but didn’t say which business.</span>
+          <span class="sp-btn">Answer Voxi</span>
+          <span class="sp-meta" style="margin-top:6px">Illustrative composition — visual treatment not locked</span>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h3>After answering</h3>
+        <p>
+          The request resolves, attention recalculates, and the block <strong>collapses into a settled
+          record</strong> showing the question and the answer given. It does not disappear: what the
+          Subscriber told Voxi is part of what happened, and losing it would make the Conversation
+          unreadable later.
+        </p>
+        <p class="rule warn">
+          <strong>What happens next is genuinely unresolved.</strong> If Voxi needed input to resolve
+          something, answering presumably lets it finish — which would return the Conversation to
+          Processing and produce a new Summary. Whether that is the behaviour is a product decision.
+          <span class="chip open" style="margin-left:4px">Open · Q10</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 --------------------------------------------------------------- -->
+  <section id="transcript">
+    <div class="sec-head"><span class="num">09</span><h2>Transcript, Turn and Content rendering</h2><span class="chip changed">Changed</span></div>
+    <div class="stack-lg">
+      <pre class="tree"><b>Transcript</b>              <i>collapsed by default · #transcript deep-links open</i>
+  └── <b>Turn</b>                <i>role: subscriber | external | voxi</i>
+        └── <b>1..N Content Parts</b>
+              <i>text · audio · image · document</i></pre>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-label">The renderer never assumes turn.text</span><span class="chip changed">Changed</span></div>
+          <p style="font-size:14px">A Turn renders as an ordered list of its content parts, even when telephony reliably produces exactly one text part.</p>
+          <p class="note">
+            Building around one string per Turn is the shortcut that has to be unwound the day an Email
+            Turn arrives carrying a body plus a PDF plus a spreadsheet. The iteration costs nothing now.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-label">Lifecycle events are not Turns</span>
+          <p style="font-size:14px">There is no <code>system</code> role, and none is wanted.</p>
+          <p class="note">
+            “Call ended”, “integration failed”, “processing completed”, “runtime degraded” are
+            structured state. They render as state, in the response slot or the Call details — never
+            interleaved into the Transcript as pseudo-turns.
+          </p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h3>Speaker labelling</h3>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Role</th><th>On a Phone Call</th><th>Elsewhere</th></tr></thead>
+            <tbody>
+              <tr><td><code>external</code></td><td>The Caller — by saved name or number. <span class="m">Caller</span> is correct here and may be used.</td><td>Identity only. No generic participant label is invented.</td></tr>
+              <tr><td><code>voxi</code></td><td colspan="2">Voxi.</td></tr>
+              <tr><td><code>subscriber</code></td><td colspan="2">The Subscriber, by name. Rare on telephony; expected once <code>voxi_app</code> ships.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="rule warn">
+        <strong>No realtime audio, ever, as history.</strong> Voxi does not record or retain the audio
+        of a Phone Call or an In-app Voice Conversation; the durable record is textual. Asynchronous
+        audio sent <em>as message content</em> — a WhatsApp voice note — is a different thing and may
+        persist as its own Content Part, but that channel is not in first production and no
+        placeholder for it appears in this shape.
+      </p>
+    </div>
+  </section>
+
+  <!-- 10 -------------------------------------------------------------- -->
+  <section id="call">
+    <div class="sec-head"><span class="num">10</span><h2>Phone Call details and outcome</h2><span class="chip decided">Vocabulary final</span></div>
+    <div class="stack-lg">
+      <div class="stack">
+        <h3>Outcome, rendered in Voxi’s voice</h3>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Value</th><th>Meaning</th><th>Candidate copy</th></tr></thead>
+            <tbody>
+              <tr><td><code>handled</code></td><td>Voxi resolved what the Caller needed.</td><td>Voxi handled it</td></tr>
+              <tr><td><code>voicemail</code></td><td>The Caller left a message for the Subscriber.</td><td>Message left for you</td></tr>
+              <tr><td><code>unresolved</code></td><td>A meaningful conversation happened; Voxi did not resolve the need and no message was left.</td><td>Voxi couldn’t resolve this</td></tr>
+              <tr><td><code>abandoned</code></td><td>The Call ended before a meaningful conversational result was established.</td><td>Caller hung up</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Copy is candidate wording, not locked. The values are domain data and never appear verbatim.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="card-label">Shown — factRow list</span>
+          <ul class="plain">
+            <li>Direction and arrival — dialled directly, or forwarded</li>
+            <li>Caller identity and number</li>
+            <li>The Voxi Number it reached</li>
+            <li>Outcome</li>
+            <li>Duration</li>
+          </ul>
+          <p class="note">The <span class="m">factRow</span> token already specifies a 74px key column.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-label">Not shown</span><span class="chip provisional">Provisional</span></div>
+          <p style="font-size:14px">SIP identifiers, carrier and provider identifiers.</p>
+          <p class="note">
+            Real Call-owned data, but support and diagnostic material rather than something a
+            Subscriber can act on. Keeping it out of the surface is the recommendation, not a rule —
+            it belongs in an operator view if one is ever built.
+          </p>
+        </div>
+      </div>
+
+      <p class="rule warn">
+        <strong>Outcome carries no attention meaning.</strong> <code>handled</code> never implies
+        settled — a handled Call can leave three open Tasks. Outcome is a fact on the detail page:
+        not a row marker, not a filter, not an input to attention.
+      </p>
+    </div>
+  </section>
+
+  <!-- 11 -------------------------------------------------------------- -->
+  <section id="empty">
+    <div class="sec-head"><span class="num">11</span><h2>Empty, All clear and Needs you</h2><span class="chip provisional">Provisional</span></div>
+    <div class="stack-lg">
+      <div class="grid-3">
+        <div class="card"><span class="card-label">No Voxi Number</span><p class="note">Onboarding is unfinished. Point at completing setup, not at an empty list.</p></div>
+        <div class="card"><span class="card-label">Number live · no Conversations</span><p class="note">Say what will happen when someone calls. Anticipation, not emptiness.</p></div>
+        <div class="card"><span class="card-label">All clear</span><p class="note">Nothing needs you, history exists. A calm line at the top of the list — not a full-screen moment.</p></div>
+        <div class="card"><span class="card-label">Steady stream</span><p class="note">Needs you &gt; 0, the normal Business state. Must read as a manageable queue, never as an alarm.</p></div>
+        <div class="card"><span class="card-label">Filtered / search empty</span><p class="note">Distinct from having no Conversations. Names the active filters and offers to clear them.</p></div>
+        <div class="card"><span class="card-label">Load error</span><p class="note">What failed and what to do. Retry preserves filters. Never an empty list posing as “no results”.</p></div>
+      </div>
+
+      <p class="rule">
+        <strong>The product must not depend on seeing zero.</strong> All clear is common for a Consumer
+        and may be rare for a Business Subscriber. Health cannot be expressed only as an empty state,
+        so the Needs&nbsp;you view has to feel calm and finite when it is full — which is what the
+        reading measure, the date grouping and the absence of alarm colour are all doing.
+      </p>
+    </div>
+  </section>
+
+  <!-- 12 -------------------------------------------------------------- -->
+  <section id="layout">
+    <div class="sec-head"><span class="num">12</span><h2>Two-pane desktop and small-screen navigation</h2><span class="chip decided">Decided</span></div>
+    <div class="stack-lg">
+      <pre class="tree">&lt; <b>lg</b>   single column · list → detail, sequential
+        <i>back restores the filter state and the scroll position that produced the row</i>
+        <i>opening a Conversation moves focus to its heading</i>
+
+≥ <b>lg</b>   two panes · list left (compact) · detail right (reading measure)
+        <i>detail keeps its own route — the right pane is never ephemeral state</i>
+        <i>opening a Conversation leaves focus in the list, so triage keeps its rhythm</i>
+        <i>selected row marked with line.strong, not colour alone</i></pre>
+
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Criterion</th><th>Consequence</th></tr></thead>
+          <tbody>
+            <tr><td><span class="m">1.4.1</span> Use of Colour</td><td>Mint and lime are semantic. Every state pairs colour with a word or a shape — attention, degradation and selection all included.</td></tr>
+            <tr><td><span class="m">1.4.11</span> Non-text Contrast</td><td>Mint borders at 28–40% alpha on <span class="m">#131916</span> need measuring against 3:1. Tokens set intent; rendered components need verification.</td></tr>
+            <tr><td><span class="m">2.4.11</span> Focus Not Obscured</td><td>Sticky date headers must never cover a focused row. Directly constrains the sticky offset and the row <code>scroll-margin-top</code>.</td></tr>
+            <tr><td><span class="m">2.5.8</span> Target Size</td><td>Task checkboxes and the answer control clear 24px. <code>desktop.hitTarget</code> is already 32.</td></tr>
+            <tr><td><span class="m">4.1.3</span> Status Messages</td><td>Processing → Ready, Task completion, Input Request resolution and page appends announce politely without moving focus.</td></tr>
+            <tr><td><span class="m">2.3.3</span> Animation</td><td>The Live pulse uses <span class="m">motion.pulse</span> and goes static under reduced-motion.</td></tr>
+            <tr><td><span class="m">1.4.10</span> Reflow</td><td>Two panes collapse to one. The Transcript scrolls in its own container; the page never scrolls sideways.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 -------------------------------------------------------------- -->
+  <section id="open">
+    <div class="sec-head"><span class="num">13</span><h2>Open questions that block implementation</h2><span class="chip open">Open</span></div>
+    <p class="note" style="margin-bottom:18px">
+      Three. Everything else carried from round 1 is closed, deferred, or answerable during build.
+    </p>
+    <div class="qa">
+      <div class="qa-item q">
+        <span class="id">Q10</span>
+        <div>
+          <div class="q-t">Does answering an Input Request re-run enrichment?</div>
+          <div class="q-d">If Voxi needed input to resolve something, answering presumably lets it finish — which returns the Conversation to <em>Processing</em> and replaces the Summary. If it does not, the answer is recorded and nothing else changes. <strong>Blocks the detail page:</strong> the post-answer state is either a transition or a dead end, and they look nothing alike.</div>
+        </div>
+      </div>
+      <div class="qa-item q">
+        <span class="id">Q11</span>
+        <div>
+          <div class="q-t">Does a Live Conversation stream Turns into the UI?</div>
+          <div class="q-d">Final Turns are persisted as the Conversation runs, so showing them live is possible. <strong>Recommendation: no in first production</strong> — Live shows identity and “Voxi is on this call now”, nothing more. Streaming would put a realtime subscription on the detail route for a state that lasts a couple of minutes. <strong>Blocks:</strong> whether the detail route needs realtime at all.</div>
+        </div>
+      </div>
+      <div class="qa-item q">
+        <span class="id">Q12</span>
+        <div>
+          <div class="q-t">What is searchable?</div>
+          <div class="q-d">Subject, Summary and participant identity are certain. Transcript content is the question — it is the most useful thing to search and the most expensive to index. <strong>Blocks:</strong> the empty-result copy, result ranking, and what the DB worktree has to index. The product says what is searchable; the index shape stays theirs.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <span class="card-label">Closed since round 1</span>
+      <p class="note">
+        <strong>Q1</strong> participant noun — no longer needed; <code>Caller</code> for telephony,
+        identity elsewhere. <strong>Q2</strong> volume — asymmetric. <strong>Q3</strong> enrichment
+        retry — none in first production. <strong>Q4</strong> handled state — no, attention stays
+        derived. <strong>Q5</strong> Tasks view — deferred; the Needs you view covers it.
+        <strong>Q6</strong> degraded copy — specimen above, wording open but not blocking.
+        <strong>Q7</strong> call back — a <code>tel:</code> link or nothing; not blocking.
+        <strong>Q8</strong> cardinality — one Account, one Subscriber. <strong>Q9</strong> input —
+        narrow reply affordance.
+      </p>
+    </div>
+  </section>
+
+  <!-- Handoff ---------------------------------------------------------- -->
+  <section id="handoff">
+    <div class="handoff">
+      <p class="eyebrow" style="color:var(--lime)">UI → DB final alignment handoff</p>
+      <h2>Product decisions the database worktree needs</h2>
+      <div class="scroller" style="background:transparent; border-color:var(--lime-line)">
+        <table>
+          <thead><tr><th>Item</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td><strong><code>unresolved</code></strong></td><td><strong>Confirmed.</strong> Call outcome is <code>handled | voicemail | unresolved | abandoned</code>, complete for first production. Belongs to Call, never Conversation. No attention semantics. Domain values, not UI copy. <code>abandoned</code> is not widened.</td></tr>
+            <tr><td><strong>Failed</strong></td><td><strong>Confirmed.</strong> <code>lifecycle = failed</code> is a visible product state, distinct from both <code>abandoned</code> (a Call outcome) and Degraded (reduced capability). Stays in Conversation History. Partial Transcript shown if it exists; Summary, Tasks and outcome are never fabricated. Does not enter <span class="m">Needs you</span>. No Subscriber retry action.</td></tr>
+            <tr><td><strong>Q9 — Input Request</strong></td><td><strong>Confirmed: narrow reply affordance.</strong> Distinct from Task. 0..N per Conversation, each independently answerable and independently feeding attention. No general composer, no threading, no messaging surface. The UI submits an answer scoped to one request; <em>persistence of the answer is yours</em>. One dependency returned: <strong>Q10</strong> — whether resolving a request re-runs enrichment.</td></tr>
+            <tr><td><strong>Q2 — volume</strong></td><td><strong>Confirmed: Consumer low, Business potentially high.</strong> A planning assumption, not a measurement. Consequences that touch you: <strong>cursor pagination</strong> is the loading contract, and <strong>Channel must be queryable as reference data</strong> because the filter is data-driven. Search ships — see Q12 for what must be indexed.</td></tr>
+            <tr><td><strong>Audio persistence</strong></td><td><strong>Clarified.</strong> Realtime voice capture — Phone Call, In-app Voice, future realtime WhatsApp — is <em>never</em> retained as historical media; the durable record is textual Turns. Asynchronous audio supplied <em>as message content</em>, such as a WhatsApp voice note, <em>may</em> persist as its original Content Part. <code>PRODUCT.md</code> is corrected; <code>runtime.md</code> invariant 8 still says “audio is never persisted” and needs the same narrowing.</td></tr>
+            <tr><td><strong><code>voxi_app</code></strong></td><td><strong>Confirmed</strong> over <code>chat</code>. It separates cleanly into <code>voxi_app + realtime_voice</code> and <code>voxi_app + messaging</code>, matching CONTEXT.md’s In-app Voice / Text Chat split that <code>chat</code> conflates. UI renders product labels, never internal Channel identity.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="color:var(--text-3)">
+        Also outstanding on your side, not blocking us: <code>database.md</code>’s Central Rule still
+        claims Conversation “never appears in the Subscriber’s world” — stale <code>Exchange</code>-era
+        text that contradicts the same document’s terminology map; <code>chat</code> is stale
+        vocabulary; “what was conversationd” and the rationale rejecting Conversation as the root are
+        rename artifacts; and the “Still open” list names decisions rounds 4–6 closed. Separately,
+        <code>runtime.md</code> resolving tenancy from the dialled Voxi Number cannot generalise to
+        <code>voxi_app</code>, <code>sms</code>, <code>email</code> or <code>whatsapp</code>.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Voxi · Conversations · shape round 2 · Q2 · Q8 · Q9 closed</span>
+    <span>CONTEXT.md · PRODUCT.md · database.md · docs/adr/0001–0006 · tokens.json</span>
+  </footer>
+</div>

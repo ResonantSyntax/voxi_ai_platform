@@ -13,9 +13,14 @@ changing anything.
 | `docs/architecture/` | Architecture working documents — **check maturity/status before relying on one** |
 | `packages/theme/tokens.json` | Canonical shared design tokens |
 | `DESIGN.md` | Approved visual/interaction design system, when it exists |
+| `docs/design/` | Shape proposals and surface maps — **check the maturity chips before relying on one** |
 
 Old mockups are **visual references only**. They never override current product
 decisions or architecture.
+
+`docs/design/conversations-shape.html` is the source of the published Voxi
+Product Surface Map. Edit the file in the repo and republish it to the existing
+artifact URL — never publish a copy from elsewhere, which forks the map.
 
 ## The contradiction rule
 
