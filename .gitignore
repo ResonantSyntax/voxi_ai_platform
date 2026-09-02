@@ -6,3 +6,6 @@ dist/
 .env.local
 *.log
 .DS_Store
+
+# Linked worktrees living inside the repo
+web_ui_build/
