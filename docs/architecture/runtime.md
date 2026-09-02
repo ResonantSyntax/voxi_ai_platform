@@ -23,9 +23,9 @@ PUBLISH        resolve → validate → materialise → canonicalise → hash �
     │              the only path from authoring to execution
     ▼
 BOOTSTRAP      one artifact read + subscriber context; final composition
-    │              per Call, before the greeting
+    │              per Conversation, before the first response
     ▼
-EXECUTION      LiveKit realtime; CompiledRuntime held in memory for the Call
+EXECUTION      realtime or messaging; CompiledRuntime held for the Conversation
     │              no configuration reads, no skill rediscovery
     ▼
 BACKGROUND     durable jobs — Summary, Tasks, enrichment, workflow delivery
@@ -41,7 +41,7 @@ authoring model; the immutable published artifact is the execution contract.**
 | Operators (via publish) | runtime drafts, skills, published artifacts | Global, not account-scoped |
 | Billing | account entitlement and status | Derived from subscription events |
 | Subscribers (web, under RLS) | Q&A, Rules, profile | Their own account only |
-| Voice agent (service role) | Call, Transcript, context snapshot, job | Bypasses RLS — see invariants |
+| Agent (service role) | Conversation, Turns, context snapshot, job | Bypasses RLS — see invariants |
 | Background worker (service role) | Summary, Tasks, job state | |
 
 ## Entities (provisional)
@@ -56,7 +56,7 @@ identifiers, and precomputed per-tier eligibility. Exactly one is active.
 
 **Skill.** The authoring record: slug, name, instructions, tool references,
 required capabilities, minimum tier, enabled. Mutable. **Read only by the
-publish step** — never by a live Call.
+publish step** — never by a live Conversation.
 
 Both are internal operator configuration. Subscribers have no reason to read
 either, which makes their tenancy story different from every other entity and
@@ -77,13 +77,13 @@ Feeds entitlement. Never read at bootstrap.
 only — no version history (see "rejected" below).
 
 **Context snapshot.** Content-addressed. The canonicalised structured context
-supplied to the compiler, keyed by its hash, inserted if absent. Fifty Calls
+supplied to the compiler, keyed by its hash, inserted if absent. Fifty Conversations
 with unchanged context reference one snapshot; editing one answer produces a
 new hash automatically.
 
-### Call record
+### Conversation record
 
-**Call**, **Transcript.** Authoritative history. Each Call carries
+**Conversation**, **Turns.** Authoritative history. Each Conversation carries
 `runtime_version`, `runtime_hash` and `context_hash` — together these
 reconstruct what produced the conversation.
 
@@ -99,8 +99,9 @@ persistence mechanism does not.
 These are the contract the database session must enforce, and the reason it
 should be a separate pass.
 
-1. **A committed Call that needs enrichment has its job committed in the same
-   transaction.** No Call can exist without the work it requires.
+1. **A committed Conversation that needs enrichment has its job committed in
+   the same transaction.** No Conversation can exist without the work it
+   requires.
 2. **A published artifact never changes.** Editing a skill affects the next
    draft, never a published version.
 3. **Exactly one runtime version is active.**
@@ -109,14 +110,23 @@ should be a separate pass.
 5. `context_hash` is the hash of canonicalised subscriber context: stable
    ordering, consistent serialisation, no timestamps, **no secrets or OAuth
    tokens**, only content that affects runtime behaviour.
-6. **Every Call's referenced runtime version and context snapshot must
-   outlive it.** Neither may be deleted or mutated while a Call points at it.
+6. **Every Conversation's referenced runtime version and context snapshot must
+   outlive it.** Neither may be deleted or mutated while one points at it.
 7. **No published artifact contains an unresolvable tool or capability
    reference.** Enforced at publish; re-checked at worker startup.
-8. **Audio is never persisted.** Transcription happens in flight.
+8. **Realtime voice audio is never persisted.** Transcription happens in
+   flight and the durable record of a realtime Conversation is textual.
+   Asynchronous audio supplied as message content — a WhatsApp voice note — is
+   different: it is content a sender chose to send, and may be persisted as a
+   Content Part if that channel is ever implemented. Neither exists in first
+   production.
 9. **Every account-scoped row carries `account_id`**, and the agent — which
-   connects with RLS bypassed — resolves it once from the dialled Voxi Number
-   and passes it explicitly into every write.
+   connects with RLS bypassed — resolves it **once at bootstrap, per channel**,
+   then passes it explicitly into every write. Telephony resolves it from the
+   dialled Voxi Number; that is a channel binding, not the universal rule.
+   Every supported channel must supply exactly one such binding to an Account
+   before a Conversation is created, and a channel with no binding cannot
+   start one. Only the telephony binding exists today.
 10. **The runtime reads `entitlement_tier` only.** No payment-state branching
     anywhere in the agent.
 11. **Suspended accounts short-circuit before runtime construction** — no
@@ -140,10 +150,10 @@ the canonical subscriber-context content* — rather than "content plus owner".
 Two accounts may legitimately produce the same hash and still own separate
 rows. That gives deduplication within an account, explicit tenant ownership,
 a straightforward RLS path, and no possibility of one account's snapshot
-serving another's Call.
+serving another's Conversation.
 
 Still open for the database session: the exact foreign-key shape, and whether
-a Call references the composite key directly or through a surrogate. The
+a Conversation references the composite key directly or through a surrogate. The
 tenancy requirement itself is settled and not up for challenge.
 
 ## Runtime boundaries
@@ -188,6 +198,6 @@ capability, not a placeholder.
 
 ## Retention requirement
 
-Since historical Call search is expected later, the Transcript must preserve
+Since historical Conversation search is expected later, Turns must preserve
 speaker/role, sequence, timestamps and utterance text. Getting that structure
 right now matters far more than deciding how it will eventually be chunked.

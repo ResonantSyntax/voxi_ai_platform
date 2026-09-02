@@ -282,16 +282,48 @@ person forever."**
 Also unbuilt: Email and WhatsApp channel extensions, media and document
 storage, vector search chunks, Memory, per-Subscriber OAuth credentials.
 
+### Round 8 — closed from merged product context
+
+- **Failed Conversation is CLOSED.** `lifecycle = failed` stays visible in
+  Conversation History with the product state **Failed**. It never maps to
+  `abandoned` (a Call outcome) or to Degraded (which means Voxi continued with
+  reduced capability). Partial evidence is shown only where it genuinely
+  exists — no Summary, Tasks or outcome are fabricated to make a failed
+  Conversation look complete. It does not contribute to attention, and there is
+  no Subscriber retry in first production.
+- **Conversation volume is CLOSED** as a planning assumption: Consumer low,
+  Business potentially high. Not a measured figure. Its persistence
+  consequences are cursor pagination and search shipping in first production.
+- **Turns are persisted incrementally while `lifecycle = active`** — each in
+  its own short transaction, ordered by an agent-assigned sequence unique per
+  Conversation, final output only. This was already implied by the round 1
+  decision to reject a growing JSONB document: the stated reason was that a
+  worker dying mid-call must not lose the conversation, which only holds if
+  turns are durable before it ends. It is also what lets a Failed Conversation
+  retain the partial evidence the UI expects. **Architecture-owned; closed
+  here, no product decision required.**
+- **Channel values are `telephony | voxi_app | sms | email | whatsapp`.**
+  `chat` was stale. In-app Voice and Text Chat are both `voxi_app`,
+  distinguished by Mode.
+
 ## Still open
 
-Nothing this worktree owns. Every database question raised across seven rounds
-is closed: identity strategy, state vocabularies, the Conversation root and its
-channel extensions, Turns and Content, tiers and entitlement, runtime
-publishing and deployment, tools and capabilities, jobs, tenant integrity, RLS
-ownership, deletion semantics and erasure.
+The entity model is complete. Two items remain, and only one of them can block
+anything.
 
-Outstanding work is elsewhere: `docs/architecture/runtime.md` is still
-Call-first, and its invariant 9 resolves `account_id` from the dialled Voxi
-Number — correct for telephony, but not a universal bootstrap rule for
-`voxi_app`, `sms`, `email` or `whatsapp`. That is an architecture correction,
-not a schema question.
+**Q10 — what happens after an Input Request is answered.** Product behaviour,
+not schema. Neither branch changes a table: resolve-only writes `answered_at`
+and the answer onto the request; re-enrichment re-runs a job that already
+exists and rewrites Summary columns that are already rewritable. The single
+schema consequence, if re-enrichment ships, is telling apart Tasks raised by
+different passes — one nullable column on a low-volume table, trivially added
+later with existing rows correctly reading as pass one. **Does not block
+conceptual sign-off or DDL.**
+
+**Q12 — what Conversation search covers.** Does not change any entity, but it
+does decide the index set, which is part of sign-off. See the index section.
+**Blocks the index deliverable only.**
+
+`runtime.md`'s Call-first bootstrap assumption is corrected: tenancy resolution
+is now a per-channel binding, of which the dialled Voxi Number is the telephony
+case rather than the universal rule.
