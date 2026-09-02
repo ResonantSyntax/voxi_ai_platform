@@ -1,0 +1,16 @@
+[project]
+name = "voxi-agent"
+version = "0.1.0"
+description = "Voxi's LiveKit voice agent — answers the Voxi Number and turns a Call into a Summary and Tasks."
+requires-python = ">=3.11"
+dependencies = [
+  "livekit-agents[deepgram,anthropic,cartesia,silero]~=1.0",
+  "asyncpg~=0.30",
+  "python-dotenv~=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest~=8.0", "pytest-asyncio~=0.24"]
+
+[tool.setuptools.packages.find]
+include = ["voxi_agent*"]
