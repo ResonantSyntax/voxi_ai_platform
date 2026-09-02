@@ -1,13 +1,24 @@
 # Voxi
 
-Voxi is a phone line that answers on your behalf. Every Subscriber gets a Voxi
-Number; Voxi picks up, talks to the Caller, and turns the conversation into a
-Summary and Tasks. Calls arrive either because the Subscriber forwarded their
-phone or because someone dialled the Voxi Number directly.
+Voxi is an AI assistant that handles Conversations on a Subscriber's behalf and
+turns each one into a Summary and Tasks. A Conversation reaches Voxi as a phone
+Call, In-app Voice, or Text Chat; telephony is the channel that ships first.
+
+Every Subscriber gets a Voxi Number. Calls arrive on it either because the
+Subscriber forwarded their phone or because someone dialled the Voxi Number
+directly.
 
 Read [CONTEXT.md](./CONTEXT.md) before writing code — it is the glossary, and
-the words in it are load-bearing. The decisions behind the architecture are in
-[docs/adr/](./docs/adr).
+the words in it are load-bearing. **Conversation is the parent concept; a Call
+is a telephony Conversation.** Summary, Transcript, Tasks and Conversation
+History belong to the Conversation, not the Call. The decisions behind the
+architecture are in [docs/adr/](./docs/adr); product truth is in
+[PRODUCT.md](./PRODUCT.md).
+
+The schema, [docs/architecture/runtime.md](./docs/architecture/runtime.md) and
+ADR-0004/0006 predate this and are still written Call-first. Where they
+disagree with `CONTEXT.md` on the domain model, `CONTEXT.md` is the intent and
+the older text is unmigrated.
 
 ## Layout
 

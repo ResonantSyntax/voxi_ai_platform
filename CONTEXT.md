@@ -1,112 +1,544 @@
-# Voxi
+# Voxi Product Context
 
-Voxi is a phone line that answers on your behalf. Every Subscriber gets a Voxi
-Number; Voxi picks up, talks to the Caller, and turns the conversation into a
-Summary and Tasks. Calls reach it either because the Subscriber forwarded their
-phone or because someone dialled the Voxi Number directly.
+## Core Product
 
-## Language
+Voxi is an AI assistant that handles conversations on behalf of a Subscriber.
 
-**Voxi**:
-The product: a phone line that answers on a Subscriber's behalf.
-_Avoid_: Voicemail assistant — Voxi answers calls that were never missed, so
-"voicemail" describes the smaller half. Also avoid personal assistant, PA:
-Voxi does not act across a Subscriber's messaging, inbox, or automations.
+Every Subscriber gets a **Voxi Number**.
 
-**Voxi Number**:
-The phone number assigned to a Subscriber that Voxi answers. Every tier gets
-one. The Subscriber may forward their personal phone to it, hand it out
-directly, or both.
-_Avoid_: DID, line, extension.
+People can interact with Voxi through:
 
-**Call**:
-One conversation between Voxi and a Caller. The unit everything else hangs off.
-_Avoid_: Voicemail, message, interaction.
+```text
+Phone Call
+In-app Voice
+Text Chat
 
-**Voicemail**:
-The outcome of a Call where the Caller left a message for the Subscriber rather
-than getting what they needed from Voxi. One kind of Call, not the product.
+```
 
-**Summary**:
-The readable account of one Call: who rang, what they wanted, what it means for
-the Subscriber.
-_Avoid_: Transcript — a Transcript is verbatim, a Summary is not.
+The shared parent concept is:
 
-**Transcript**:
-The verbatim text of a Call. Retained as Voxi's long-term memory of a Caller.
-Audio is never kept.
+```text
+Conversation
 
-**Task**:
-An action the Subscriber needs to take, derived by Voxi from a Call. Voxi
-raises it; the Subscriber clears it.
-_Avoid_: To-do, reminder, follow-up, action item.
+```
 
-**Rule**:
-A standing instruction from the Subscriber about how Voxi should handle certain
-Calls. A Rule triggers on either a Caller or a topic — never both at once.
-A Rule changes how loudly Voxi tells the Subscriber; it cannot change whether
-their phone rings.
-_Avoid_: Priority, preference, setting.
+A **Call** is only a telephony Conversation.
 
-**Subscriber**:
-The person whose Voxi Number this is, and who holds the subscription.
-_Avoid_: User, customer, account.
+Do not use `Call` as the parent term for all Voxi activity.
 
-**Caller**:
-The person who reached Voxi, whether by dialling the Voxi Number or by being
-forwarded to it.
+---
 
-**Voxi Card**:
-The hosted page a Subscriber's QR code resolves to — who they are, what Voxi
-can help with, and a way to call or save the contact.
-_Avoid_: Business card, profile, landing page.
+# Core Domain Model
 
-**Memory**:
-Facts and preferences Voxi deliberately retains about a Caller or the
-Subscriber's world, carried forward into future Calls. Does not exist yet.
-_Avoid_: History, context — Memory is what Voxi chose to keep, not everything
-it has heard.
+```text
+Conversation
+├── Phone Call
+├── In-app Voice
+└── Text Chat
 
-**Call History**:
-The searchable record of what was said in past Calls. Distinct from Memory:
-history is everything, Memory is the deliberate subset.
+```
+
+Conversation-level features include:
+
+```text
+Summary
+Transcript
+Tasks
+Conversation History
+Runtime context
+Entitlement
+
+```
+
+Telephony-specific information belongs to the Call, not the generic Conversation.
+
+---
+
+# Terminology
+
+## Voxi
+
+The product.
+
+Voxi handles conversations for a Subscriber.
+
+Do not describe Voxi as only a voicemail product.
+
+Avoid:
+
+```text
+voicemail assistant
+personal assistant
+PA
+
+```
+
+unless explicitly discussing those narrower concepts.
+
+---
+
+## Subscriber
+
+The person who owns the Voxi subscription and Voxi Number.
+
+Prefer:
+
+```text
+Subscriber
+
+```
+
+instead of:
+
+```text
+user
+customer
+account
+
+```
+
+when referring to the person.
+
+---
+
+## Conversation
+
+A single conversational exchange involving Voxi.
+
+Can be:
+
+```text
+phone
+in-app voice
+text
+
+```
+
+This is the main parent concept for conversation history, summaries, transcripts and tasks.
+
+---
+
+## Call
+
+A Conversation over telephony / SIP / PSTN.
+
+Examples:
+
+```text
+forwarded phone call
+direct call to Voxi Number
+outbound phone call
+
+```
+
+Every Call is a Conversation.
+
+Not every Conversation is a Call.
+
+---
+
+## Caller
+
+The person participating in a phone Call with Voxi.
+
+Use `Caller` only for telephony.
+
+Do not use `Caller` for an in-app text or voice participant.
+
+---
+
+## Voxi Number
+
+The phone number assigned to a Subscriber.
+
+The Subscriber can:
+
+```text
+forward calls to it
+give the number directly to other people
+do both
+
+```
+
+Avoid:
+
+```text
+DID
+extension
+line
+
+```
+
+in user-facing language.
+
+---
+
+## Summary
+
+A concise interpreted account of what happened in a Conversation.
+
+It is not verbatim.
+
+Do not confuse it with a Transcript.
+
+---
+
+## Transcript
+
+The ordered textual record of a Conversation.
+
+For voice:
+
+```text
+final speech-to-text output
+
+```
+
+For text:
+
+```text
+the original messages
+
+```
+
+Audio is not the long-term authoritative record.
+
+---
+
+## Task
+
+An action Voxi identifies for the Subscriber from a Conversation.
+
+Voxi creates it.
+
+The Subscriber clears/completes it.
+
+Prefer:
+
+```text
+Task
+
+```
+
+Avoid:
+
+```text
+to-do
+reminder
+follow-up
+action item
+
+```
+
+unless specifically required by copy.
+
+---
+
+## Conversation History
+
+The historical record of Conversations across all channels.
+
+Includes:
+
+```text
+Phone Calls
+In-app Voice
+Text Chat
+
+```
+
+`Call History` refers only to the telephony subset.
+
+---
+
+## Voicemail
+
+A possible outcome of a phone Call where Voxi collects information for the Subscriber.
+
+Voicemail is not the product.
+
+---
+
+# Knowledge and Behaviour
+
+## Rule
+
+A standing instruction from the Subscriber that affects how Voxi handles relevant Conversations.
+
+Exact Rule trigger behaviour is still being designed.
+
+Do not invent trigger combinations or limitations unless they are already documented elsewhere.
+
+---
+
+## Q&amp;A
+
+Subscriber-authored question-and-answer pairs.
+
+Used by Voxi to answer relevant questions.
+
+Current intended tier:
+
+```text
+Pro
+
+```
+
+Treat authored answers as deliberate source material.
+
+Do not assume Voxi should invent unsupported answers beyond them.
+
+---
 
 ## Knowledge
 
-**Q&A**:
-Question-and-answer pairs the Subscriber writes by hand for Voxi to answer
-Callers from. Pro tier. Deterministic — Voxi does not infer beyond them.
+Subscriber-uploaded documents that Voxi can retrieve from when answering.
 
-**Knowledge**:
-Documents the Subscriber uploads, which Voxi ingests and retrieves from to
-answer Callers. Business tier.
-_Avoid_: Docs, knowledge base, context.
+Current intended tier:
 
-## Billing
+```text
+Business
 
-**Tier**:
-One of the three named levels: Starter, Pro, Business.
+```
 
-**Plan**:
-The Tier a Subscriber bought and is billed for.
+Avoid using `Knowledge` to mean generic runtime context.
 
-**Entitlement**:
-The Tier a Subscriber can actually use right now. Normally the same as Plan,
-but diverges during a payment grace period or a suspension. Voxi's runtime
-reads Entitlement and never interprets payment state.
-_Avoid_: Using "tier" unqualified where the two could differ.
+---
 
-**Grace**:
-The window after a failed payment during which Entitlement still matches Plan.
+## Memory
 
-## Tiers
+Deliberately retained facts or preferences that may influence future Conversations.
 
-**Starter**:
-Summaries and Tasks.
+Memory does not exist yet.
 
-**Pro**:
-Starter plus calendar integration, Q&A, and a Voxi Card.
+Do not treat Conversation History as Memory.
 
-**Business**:
-Pro plus Knowledge and receptionist skills — Voxi handles the Caller further
-rather than taking a message. Scope not yet settled.
+Difference:
+
+```text
+Conversation History
+= what happened
+
+Memory
+= selected facts deliberately carried forward
+
+```
+
+---
+
+# Billing Language
+
+## Tier
+
+One of:
+
+```text
+Starter
+Pro
+Business
+
+```
+
+---
+
+## Plan
+
+The Tier the Subscriber purchased and is billed for.
+
+---
+
+## Entitlement
+
+The Tier the Subscriber is allowed to use right now.
+
+Normally:
+
+```text
+Plan == Entitlement
+
+```
+
+They may differ because of:
+
+```text
+payment grace
+suspension
+administrative override
+
+```
+
+The runtime uses **Entitlement**.
+
+The runtime does not interpret billing/payment state itself.
+
+---
+
+## Grace
+
+A temporary period after a billing problem where access may continue according to billing policy.
+
+---
+
+# Current Tier Intent
+
+## Starter
+
+```text
+Conversation History
+Summaries
+Tasks
+Voxi Number
+
+```
+
+## Pro
+
+Starter plus:
+
+```text
+Calendar integration
+Q&A
+Voxi Card
+
+```
+
+## Business
+
+Pro plus:
+
+```text
+Knowledge
+advanced receptionist capabilities
+
+```
+
+Business receptionist scope is not settled yet.
+
+Do not invent it.
+
+---
+
+# Voxi Card
+
+A hosted page associated with the Subscriber.
+
+May contain:
+
+```text
+Subscriber information
+what Voxi can help with
+call action
+save-contact action
+QR destination
+
+```
+
+Prefer:
+
+```text
+Voxi Card
+
+```
+
+Avoid:
+
+```text
+business card
+profile
+landing page
+
+```
+
+---
+
+# UI / UX Rules
+
+The web UI should be designed around:
+
+```text
+Conversations
+
+```
+
+not:
+
+```text
+Calls
+
+```
+
+even if early production data is mostly phone Calls.
+
+Shared UX such as:
+
+```text
+Conversation list
+Conversation detail
+Summary
+Transcript
+Tasks
+
+```
+
+must remain channel-neutral.
+
+Telephony-specific information should appear only where relevant to a phone Call.
+
+Do not expose internal architecture terminology unnecessarily.
+
+User-facing language should remain plain and product-oriented.
+
+---
+
+# Product Boundaries
+
+Currently in scope:
+
+```text
+Authentication
+Onboarding
+Conversations
+Summaries
+Transcripts
+Tasks
+Rules
+Q&A
+Voxi Number setup
+Billing / Plan / Entitlement
+
+```
+
+Known but not yet fully defined:
+
+```text
+In-app Voice
+Text Chat
+Business receptionist capabilities
+Knowledge
+Memory
+additional integrations
+
+```
+
+Do not treat deferred features as implemented product requirements.
+
+---
+
+# Source-of-Truth Rule
+
+When product sources disagree, use this priority:
+
+```text
+Current approved product decisions
+↓
+Current architecture / ADRs
+↓
+Current product context
+↓
+Old mockups
+
+```
+
+Old mockups are visual references only.
+
+They must not override current product behaviour or architecture.
