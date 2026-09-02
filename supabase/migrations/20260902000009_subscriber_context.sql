@@ -44,7 +44,7 @@ create table voxi.rules (
 -- Append-only: a snapshot is what makes a historical Conversation reconstructable.
 create table voxi.context_snapshots (
   account_id   uuid not null references voxi.accounts on delete cascade,
-  context_hash bytea not null,
+  context_hash bytea not null check (length(context_hash) = 32),
   snapshot     jsonb not null,
   created_at   timestamptz not null default now(),
 
@@ -54,6 +54,18 @@ create table voxi.context_snapshots (
 comment on column voxi.context_snapshots.snapshot is
   'Canonicalised structured context given to the compiler: stable ordering, consistent serialisation, no timestamps, NO secrets or OAuth tokens.';
 
-create trigger context_snapshots_immutable
-  before update or delete on voxi.context_snapshots
+-- UPDATE only, deliberately NOT delete.
+--
+-- The snapshot's CONTENT is immutable: a content-addressed row whose body could
+-- change would make the hash a lie. But Account erasure has to genuinely delete
+-- a Subscriber's context, and blocking DELETE would make personal data
+-- literally undeletable — trading a real privacy obligation for a theoretical
+-- integrity one.
+--
+-- Deletion therefore flows only through the controlled erasure path, running as
+-- service_role. Conversations reference snapshots with ON DELETE RESTRICT, so
+-- erasure must remove the Conversations first; nothing can orphan a historical
+-- Conversation by deleting its context out from under it.
+create trigger context_snapshots_no_update
+  before update on voxi.context_snapshots
   for each row execute function voxi.forbid_mutation();

@@ -12,7 +12,8 @@
 -- schema and are never referenced externally.
 create table voxi.conversation_turns (
   id              bigint generated always as identity primary key,
-  conversation_id uuid not null references voxi.conversations on delete cascade,
+  -- Single-column FK omitted; the composite tenant FK carries it.
+  conversation_id uuid not null,
   account_id      uuid not null references voxi.accounts on delete cascade,
 
   -- Channel-neutral authorship. An in-app Conversation has no Caller, and
@@ -20,7 +21,7 @@ create table voxi.conversation_turns (
   role            voxi.turn_role not null,
 
   -- Assigned by the agent, monotonic within the Conversation.
-  sequence        integer not null,
+  sequence        integer not null check (sequence >= 0),
   occurred_at     timestamptz not null default now(),
 
   constraint turns_tenant_fk
@@ -48,16 +49,16 @@ comment on table voxi.conversation_turns is
 -- message content — a WhatsApp voice note — may be, if that channel ships.
 create table voxi.turn_content (
   id           bigint generated always as identity primary key,
-  turn_id      bigint not null references voxi.conversation_turns on delete cascade,
+  turn_id      bigint not null,
   account_id   uuid not null references voxi.accounts on delete cascade,
 
   kind         voxi.content_kind not null,
-  ordinal      smallint not null default 0,
+  ordinal      smallint not null default 0 check (ordinal >= 0),
 
   text         text,
   storage_path text,
   mime_type    text,
-  size_bytes   bigint,
+  size_bytes   bigint check (size_bytes >= 0),
   checksum     bytea,
 
   created_at   timestamptz not null default now(),
@@ -68,9 +69,12 @@ create table voxi.turn_content (
 
   constraint content_ordinal_unique unique (turn_id, ordinal),
 
-  -- A part carries inline text or a storage reference, never neither.
-  constraint content_has_a_body check (
-    (kind = 'text' and text is not null)
-    or (kind <> 'text' and storage_path is not null)
+  -- A Content Part is ONE thing: inline text or a stored object, never both
+  -- and never neither. A part carrying both would make "what did this turn
+  -- contain" ambiguous and give the search and rendering paths two sources.
+  constraint content_has_exactly_one_body check (
+    (kind =  'text' and text is not null     and storage_path is null)
+    or
+    (kind <> 'text' and storage_path is not null and text is null)
   )
 );

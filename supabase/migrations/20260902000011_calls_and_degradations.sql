@@ -8,7 +8,9 @@
 -- symmetry. Email and WhatsApp get one when they ship and have their own; the
 -- in-app channel may never need one.
 create table voxi.calls (
-  conversation_id uuid primary key references voxi.conversations on delete cascade,
+  -- PK and FK at once: 0..1 Call per Conversation, structurally.
+  -- The tenant pair below carries the cascade; this stays for the PK identity.
+  conversation_id uuid primary key,
   account_id      uuid not null references voxi.accounts on delete cascade,
   voxi_number_id  uuid not null,
 
@@ -51,7 +53,10 @@ comment on table voxi.calls is
 -- Conversation can still be degraded.
 create table voxi.conversation_degradations (
   id              uuid primary key default voxi.uuidv7(),
-  conversation_id uuid not null references voxi.conversations on delete cascade,
+  -- Single-column FK omitted: the composite tenant FK below covers the
+  -- relationship and its cascade, and two FKs to one parent means two checks
+  -- and two indexes for nothing.
+  conversation_id uuid not null,
   account_id      uuid not null references voxi.accounts on delete cascade,
 
   skill_slug      text not null,

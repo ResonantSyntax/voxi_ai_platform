@@ -27,12 +27,16 @@ create table voxi.channels (
   created_at timestamptz not null default now()
 );
 
+-- ONLY currently implemented Channels are seeded.
+--
+-- The schema is channel-neutral and can represent voxi_app, sms, email and
+-- whatsapp — but the Channel filter in the UI is data-driven, so seeding a
+-- future row here would put a fake option in front of a Subscriber. Rows are
+-- added in the migration that ships the channel.
+--
+-- Schema-representable is not the same as currently implemented.
 insert into voxi.channels (slug, name) values
-  ('telephony', 'Phone'),
-  ('voxi_app',  'Voxi app'),
-  ('sms',       'SMS'),
-  ('email',     'Email'),
-  ('whatsapp',  'WhatsApp');
+  ('telephony', 'Phone');
 
 -- How it operates. A WhatsApp Call and a WhatsApp voice note are both audio and
 -- behave nothing alike; the first is realtime, the second is message content.
@@ -43,9 +47,9 @@ create table voxi.modes (
   created_at timestamptz not null default now()
 );
 
+-- Likewise: messaging mode has no agent implementation yet.
 insert into voxi.modes (slug, name) values
-  ('realtime_voice', 'Realtime voice'),
-  ('messaging',      'Messaging');
+  ('realtime_voice', 'Realtime voice');
 
 -- Which modes each channel permits. conversations carries a composite FK to
 -- this pair, which is what makes sms + realtime_voice unrepresentable rather
@@ -56,19 +60,12 @@ create table voxi.channel_modes (
   primary key (channel_id, mode_id)
 );
 
+-- The one implemented combination.
 insert into voxi.channel_modes (channel_id, mode_id)
 select c.id, m.id
 from voxi.channels c
 join voxi.modes m on true
-where (c.slug, m.slug) in (
-  ('telephony', 'realtime_voice'),
-  ('voxi_app',  'realtime_voice'),
-  ('voxi_app',  'messaging'),
-  ('sms',       'messaging'),
-  ('email',     'messaging'),
-  ('whatsapp',  'realtime_voice'),
-  ('whatsapp',  'messaging')
-);
+where (c.slug, m.slug) in (('telephony', 'realtime_voice'));
 
 -- Call outcome. Product meaning, telephony only, and it carries NO attention
 -- semantics — nothing anywhere may derive needs_attention from these.

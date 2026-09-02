@@ -16,7 +16,8 @@ create table voxi.tasks (
   -- Required in first production: there are no standalone, manually created
   -- Tasks and no global "add Task" entry point. Relaxing later is an instant
   -- DROP NOT NULL with no data migration.
-  conversation_id uuid not null references voxi.conversations on delete cascade,
+  -- Single-column FK omitted; the composite tenant FK carries it.
+  conversation_id uuid not null,
 
   title           text not null,
   detail          text,
@@ -40,7 +41,7 @@ comment on column voxi.tasks.account_id is
 create table voxi.input_requests (
   id              uuid primary key default voxi.uuidv7(),
   account_id      uuid not null references voxi.accounts on delete cascade,
-  conversation_id uuid not null references voxi.conversations on delete cascade,
+  conversation_id uuid not null,
 
   question        text not null,
   status          voxi.input_request_status not null default 'pending',
@@ -54,9 +55,11 @@ create table voxi.input_requests (
 
   -- An answered request has an answer and a resolution time; a pending one has
   -- neither. Dismissed needs neither.
+  -- dismissed means closed WITHOUT an answer, so it carries neither. A request
+  -- that was answered stays answered; it is not later dismissed.
   constraint input_requests_answer_consistent check (
-    (status = 'answered' and answer is not null and answered_at is not null)
-    or (status = 'pending' and answer is null and answered_at is null)
-    or (status = 'dismissed')
+    (status = 'answered'  and answer is not null and answered_at is not null)
+    or (status = 'pending'   and answer is null and answered_at is null)
+    or (status = 'dismissed' and answer is null and answered_at is null)
   )
 );

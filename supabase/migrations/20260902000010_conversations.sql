@@ -15,9 +15,9 @@ create table voxi.conversations (
 
   -- Runtime identity. Written ONCE at bootstrap, never updated. Together these
   -- reconstruct exactly what produced the conversation.
-  runtime_release_id     uuid not null references voxi.runtime_releases on delete restrict,
-  runtime_hash           bytea not null,
-  context_hash           bytea not null,
+  runtime_release_id     uuid  not null,
+  runtime_hash           bytea not null check (length(runtime_hash) = 32),
+  context_hash           bytea not null check (length(context_hash) = 32),
   effective_tier_id      smallint not null references voxi.tiers on delete restrict,
 
   -- Axis 1: did the conversation execute?
@@ -26,6 +26,9 @@ create table voxi.conversations (
   -- Axis 3, degradation, is rows in conversation_degradations.
   enrichment_status voxi.enrichment_status not null default 'pending',
 
+  -- The channel-neutral subject or topic of the Conversation, shown in the
+  -- product UI. NOT an Email Subject header — raw Email metadata belongs to a
+  -- future Email extension.
   subject     text,
 
   -- Summary is FIELDS here, not a table. One current Summary per Conversation,
@@ -40,6 +43,13 @@ create table voxi.conversations (
 
   started_at  timestamptz not null default now(),
   ended_at    timestamptz,
+
+  -- The pair, not the id alone: runtime_hash is denormalised onto the
+  -- Conversation so it is readable without a join, and this makes it
+  -- impossible for it to disagree with the release it names.
+  constraint conversations_runtime_fk
+    foreign key (runtime_release_id, runtime_hash)
+    references voxi.runtime_releases (id, runtime_hash) on delete restrict,
 
   constraint conversations_channel_mode_valid
     foreign key (channel_id, mode_id)

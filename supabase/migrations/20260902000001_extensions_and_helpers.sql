@@ -17,7 +17,6 @@ create or replace function voxi.uuidv7()
 returns uuid
 language sql
 volatile
-parallel safe
 as $$
   select (
       lpad(to_hex((extract(epoch from clock_timestamp()) * 1000)::bigint), 12, '0')
@@ -30,7 +29,7 @@ as $$
 $$;
 
 comment on function voxi.uuidv7() is
-  'Time-ordered UUID for client-visible ids. Keeps index inserts local and leaks no row volume.';
+  'Time-ordered UUID for client-visible ids. Keeps index inserts local and leaks no row volume. Values generated within the same millisecond share a timestamp prefix and differ only in the random tail, so they are time-SORTABLE but NOT strictly monotonic in generation order. Do not test for that.';
 
 -- Blocks UPDATE and DELETE on append-only tables. Used by runtime_releases and
 -- context_snapshots, where immutability is the whole point and a revoked grant
@@ -51,3 +50,15 @@ $$;
 -- whose body reads voxi.subscribers, and check_function_bodies validates SQL
 -- bodies at creation time — so defining it before stage 05 fails outright.
 -- It lives in stage 17, next to the policies that use it.
+
+-- Stamps updated_at. Clients are granted the business columns only; the
+-- database owns its own metadata, so a browser cannot backdate a row.
+create or replace function voxi.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;

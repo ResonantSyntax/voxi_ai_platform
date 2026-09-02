@@ -9,11 +9,31 @@
 create table voxi.runtime_releases (
   id            uuid primary key default voxi.uuidv7(),
   version       integer not null unique,
-  runtime_hash  bytea not null,
+  runtime_hash  bytea not null check (length(runtime_hash) = 32),
   artifact      jsonb not null,
   published_at  timestamptz not null default now(),
-  published_by  uuid references voxi.subscribers on delete set null,
-  source_draft_id uuid references voxi.runtime_drafts on delete set null
+
+  -- Operator identity, deliberately NOT a foreign key to subscribers.
+  --
+  -- A Subscriber is a product concept: the person who owns a Voxi Number.
+  -- Whoever publishes a runtime is an operator of the platform, a different
+  -- audience entirely, and there is no staff/operator model in this schema.
+  -- Pointing at subscribers would conflate the two and, worse, ON DELETE SET
+  -- NULL is an UPDATE that the immutability trigger below would reject —
+  -- deleting a Subscriber would have made their Account's deletion fail.
+  --
+  -- Free text until a real operator model exists, at which point this becomes
+  -- a foreign key to it.
+  published_by  text,
+
+  -- RESTRICT, not SET NULL. SET NULL is an UPDATE and the immutability trigger
+  -- would reject it. Retaining the source draft is also more consistent: a
+  -- published release should always be traceable to what produced it.
+  source_draft_id uuid references voxi.runtime_drafts on delete restrict,
+
+  -- Lets a Conversation reference the pair, so its denormalised runtime_hash
+  -- cannot disagree with the release it names.
+  constraint runtime_releases_hash_key unique (id, runtime_hash)
 );
 
 comment on column voxi.runtime_releases.artifact is
@@ -30,5 +50,9 @@ create table voxi.runtime_deployment (
   id                 smallint primary key default 1 check (id = 1),
   active_release_id  uuid not null references voxi.runtime_releases on delete restrict,
   updated_at         timestamptz not null default now(),
-  updated_by         uuid references voxi.subscribers on delete set null
+  -- Operator identity, same reasoning as runtime_releases.published_by.
+  updated_by         text
 );
+
+comment on table voxi.runtime_deployment is
+  'PK plus CHECK(id = 1) permits 0 or 1 rows, not exactly one — Postgres cannot require a row to exist. Before the first publish the table is legitimately empty. "Exactly one active release" is a publish-time invariant the deployment path upholds, not something the schema guarantees.';

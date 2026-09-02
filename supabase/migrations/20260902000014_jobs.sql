@@ -22,7 +22,7 @@ create table voxi.jobs (
   account_id      uuid not null references voxi.accounts on delete cascade,
 
   -- NULLABLE: storage_cleanup and account_erasure have no Conversation.
-  conversation_id uuid references voxi.conversations on delete cascade,
+  conversation_id uuid,
 
   status          voxi.job_status not null default 'pending',
   attempts        integer not null default 0,
@@ -34,7 +34,14 @@ create table voxi.jobs (
   claimed_at      timestamptz,
 
   payload         jsonb not null default '{}'::jsonb,
-  idempotency_key text,
+  -- REQUIRED. Nullable would have made the unique constraint vacuous for
+  -- exactly the rows most likely to be double-enqueued, since NULLs are
+  -- distinct. Idempotency is an invariant, not an option.
+  --
+  -- Scoped globally rather than per-account: keys are derived from row UUIDs,
+  -- which are already globally unique, so account scoping would add nothing
+  -- and would let a genuine cross-tenant key collision pass unnoticed.
+  idempotency_key text not null,
   last_error      text,
 
   created_at      timestamptz not null default now(),
