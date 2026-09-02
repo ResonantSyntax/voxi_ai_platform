@@ -316,6 +316,13 @@ storage, vector search chunks, Memory, per-Subscriber OAuth credentials.
 
 ## Still open
 
+Nothing. Q10, Q11 and Q12 closed in round 8 — see the decision log. The
+complete specification is **[Final conceptual design](#final-conceptual-design)**
+at the end of this document; everything above it is the record of how each
+decision was reached.
+
+<details><summary>Superseded note from before round 8 closed</summary>
+
 The entity model is complete. Two items remain, and only one of them can block
 anything.
 
@@ -335,3 +342,352 @@ does decide the index set, which is part of sign-off. See the index section.
 `runtime.md`'s Call-first bootstrap assumption is corrected: tenancy resolution
 is now a per-channel binding, of which the dialled Voxi Number is the telephony
 case rather than the universal rule.
+
+</details>
+
+### Round 8 closures
+
+- **Q10 — resolve-only.** Answering an Input Request records the answer and a
+  resolution timestamp, moving it `pending → answered`. It does not trigger
+  re-enrichment. First production therefore never has to answer whether Summary
+  is regenerated, whether Tasks are replaced or merged, or which pass produced
+  which Task. If re-enrichment ships later, the provenance needed is one
+  nullable column on a low-volume table.
+- **Q11 — persist live, do not render live.** Final Turns are written
+  incrementally while `lifecycle = active`, each in its own short transaction,
+  ordered by an agent-assigned sequence unique within the Conversation.
+  Interim STT hypotheses are excluded. Partial durable evidence survives worker
+  failure, which is what lets a Failed Conversation show what genuinely exists.
+  The UI exposes no live Transcript in first production — **persist live is not
+  render live.**
+- **Q12 — search covers identity, subject, Summary and Tasks.** Full Transcript
+  text is deliberately not indexed. Turns are written during a live
+  Conversation, so a large FTS index on turn content would charge every
+  utterance for search recall; and keyword indexing of transcripts would be
+  superseded by the later chunk-and-embed retrieval work rather than reused
+  by it. **Transcript search is deferred to that architecture, not to a bigger
+  index now.**
+
+---
+
+# Final conceptual design
+
+> **For approval. Still no DDL.** This is the consolidated specification; the
+> decision log above records how each choice was reached. Where the schema
+> board and this document disagree, this document wins.
+
+## Entities by domain
+
+### Identity and tenancy
+
+| Entity | Responsibility |
+| --- | --- |
+| `accounts` | Tenancy, ownership and security boundary. Holds entitlement tier and account status. Contains no personal data, which is what lets it survive erasure as a tombstone. |
+| `subscribers` | The human who owns and operates Voxi. Nullable, unique `auth_user_id` so a person can exist before an auth record. |
+| `voxi_numbers` | A number Voxi answers. Surrogate id, `e164` unique — numbers port, get reassigned and get corrected. |
+
+Cardinality, first production: `accounts 1—1 subscribers 1—1 voxi_numbers`.
+Three separate concepts at 1:1; `accounts 1—N subscribers` is deferred and the
+1:1 must never collapse them.
+
+### Billing and entitlement
+
+| Entity | Responsibility |
+| --- | --- |
+| `tiers` | Reference vocabulary with an explicit `rank`. Not a billing table — no price, interval or provider plan id. |
+| `subscriptions` | Provider billing truth: plan, status, period, grace. Never read at bootstrap. |
+| `subscription_events` | Append-only provider webhooks. Serves idempotency, audit and history at once. Redacted, not deleted, on erasure. |
+
+Runtime reads `accounts.entitlement_tier` and never interprets payment state.
+
+### Runtime authoring
+
+| Entity | Responsibility |
+| --- | --- |
+| `skills` | Mutable authoring record: slug, name, instructions, minimum tier, enabled. Read only by publish. |
+| `tools` | Declarative catalog of stable tool identifiers. Managed through the deployment path — never synced by a worker at boot. |
+| `capabilities` | Same, for availability requirements. |
+| `skill_tools`, `skill_capabilities` | Join tables with real foreign keys, so a typo is an insert the database refuses. |
+| `runtime_drafts` | Mutable pre-publish configuration. |
+
+### Published runtime
+
+| Entity | Responsibility |
+| --- | --- |
+| `runtime_releases` | Immutable, insert-only. Fully materialised artifact, `runtime_hash`, per-tier eligibility variants. |
+| `runtime_deployment` | Single row naming the live release. Rollback moves the pointer; no release is ever touched. |
+
+### Subscriber context
+
+| Entity | Responsibility |
+| --- | --- |
+| `qa_pairs` | Subscriber-authored deterministic answers. Pro tier. |
+| `rules` | Standing instructions. Trigger on a Caller or a topic, never both. |
+| `context_snapshots` | Content-addressed, tenant-scoped, insert-only. Reconstructs exactly what a historical Conversation was given. |
+
+### Conversation
+
+| Entity | Responsibility |
+| --- | --- |
+| `channels` | Reference: `telephony`, `voxi_app`, `sms`, `email`, `whatsapp`. |
+| `modes` | Reference: `realtime_voice`, `messaging`. |
+| `channel_modes` | Which modes each channel permits, making `sms + realtime_voice` unrepresentable. |
+| `conversations` | **The root.** Runtime release, runtime hash, context hash, effective entitlement, timings, Summary columns, lifecycle and enrichment state, search vector. |
+| `calls` | Telephony extension. Direction, caller and callee numbers, Voxi Number, SIP and carrier identifiers, arrival, **outcome**. |
+| `conversation_turns` | One append-only row per final contribution: role, sequence, timestamp. |
+| `turn_content` | 0..N content parts per Turn. Text inline; binary by reference into Storage. |
+| `input_requests` | What Voxi needs *from* the Subscriber. 0..N per Conversation. |
+| `conversation_degradations` | 0..N structured records of a Skill unusable at bootstrap. |
+| `tasks` | What the Subscriber must do. Always belongs to a Conversation. |
+
+### Background work
+
+| Entity | Responsibility |
+| --- | --- |
+| `jobs` | One durable table for all asynchronous work. Claimed with `FOR UPDATE SKIP LOCKED`; attempts, backoff, dead-letter, stale-claim recovery. |
+
+## Cardinalities
+
+```
+accounts 1─1 subscribers 1─1 voxi_numbers
+accounts 1─N conversations 1─0..1 calls
+conversations 1─N conversation_turns 1─N turn_content
+conversations 1─N tasks · input_requests · conversation_degradations · jobs
+conversations N─1 runtime_releases · context_snapshots · channels · modes · tiers
+channels N─M modes  (via channel_modes)
+skills   N─M tools  (via skill_tools)
+skills   N─M capabilities (via skill_capabilities)
+runtime_deployment 1─1 runtime_releases   (single row)
+```
+
+## Keys
+
+**UUIDv7 everywhere it is client-visible or externally referenced** — accounts,
+subscribers, voxi_numbers, conversations, tasks, input_requests, jobs,
+runtime_releases, runtime_drafts, skills, degradations. Time-ordered so inserts
+stay local in the index, and it leaks no volume the way a sequence does.
+Postgres 17.6 has no `uuidv7()` and `pg_uuidv7` is unavailable on Supabase, so
+generation is a small SQL function over `pgcrypto` for defaults, with Python
+generating client-side where the agent needs the id before writing — which is
+what makes a retried insert idempotent.
+
+**`bigint` identity for high-volume internal rows** — `conversation_turns`,
+`turn_content`. Never referenced externally, and they will outnumber everything
+else.
+
+**Natural and composite keys where the relationship is the identity:**
+
+- `calls.conversation_id` is **both PK and FK** — 0..1 Call per Conversation,
+  structurally, with no second identity for one communication episode
+- `context_snapshots` — `(account_id, context_hash)`
+- `channel_modes`, `skill_tools`, `skill_capabilities` — composite of their two
+  foreign keys
+- `runtime_deployment` — one row, enforced by a CHECK on a constant id
+- Reference tables carry a small surrogate id with a unique slug
+
+## State and reference vocabularies
+
+| Field | Form | Reason |
+| --- | --- | --- |
+| Tier | **reference table** with `rank` | Compared at publish time only, so the join is free; the ladder becomes reorderable data instead of type ordering |
+| Channel, Mode | **reference tables** | Grow with integrations; a join table of two FKs beats mixing an FK with an enum |
+| `conversations.lifecycle` | **enum** `active · completed · failed` | Closed, owned by us, changes almost never |
+| `conversations.enrichment_status` | **enum** `pending · processing · completed · failed` | As above. Named for the job, not for Summary alone — it also produces Tasks and Input Requests |
+| `calls.outcome` | **reference table** `handled · voicemail · unresolved · abandoned` | Product meaning; the UI needs display labels. `abandoned` is never widened |
+| `conversation_turns.role` | **enum** `subscriber · external · voxi` | No `system` until a real conversational use exists |
+| `tasks.status` | **enum** `open · done · dismissed` | |
+| `input_requests.status` | **enum** `pending · answered · dismissed` | Expiry is a product decision, not a state |
+| `jobs.status` | **enum** | The state machine is the point |
+| `jobs.job_type` | **CHECK text** | Pure implementation, grows with every feature, no display label |
+| `subscription_status` | **CHECK text** | Mirrors a provider's vocabulary, which is not ours to control |
+| `account_status` | **enum** `active · suspended · erasing · erased` | |
+| `number_status` | **enum** `provisioning · active · released` | |
+
+**Three state axes stay independent** — lifecycle, enrichment and degradation
+coexist and are never pre-composed into a UI status. `is_degraded` is
+`EXISTS (conversation_degradations)`, never a stored boolean, so the reason
+survives without anyone parsing error prose.
+
+**Attention is derived, never stored:**
+`needs_attention = open_tasks > 0 OR unresolved_input_requests > 0`. Outcome,
+lifecycle, enrichment state and degradation contribute nothing.
+
+## Immutability
+
+| Entity | Rule |
+| --- | --- |
+| `runtime_releases` | Insert-only. A published artifact never changes, so rollback restores exactly what ran |
+| `context_snapshots` | Insert-only, content-addressed |
+| `conversation_turns`, `turn_content` | Append-only |
+| `subscription_events` | Insert-only, except redaction during erasure |
+| `conversations` | Mutable while `active`; afterwards only enrichment output and search vector |
+| Runtime identity on a Conversation | `runtime_release_id`, `runtime_hash`, `context_hash`, `effective_entitlement` are written once at bootstrap and never updated |
+
+## Deletion semantics
+
+The governing rule: **no deletion may make a historical Conversation
+uninterpretable.**
+
+| Relationship | Behaviour |
+| --- | --- |
+| anything → `accounts` | **CASCADE** — erasure must genuinely delete |
+| `conversations` → `runtime_releases` | **RESTRICT** |
+| `conversations` → `context_snapshots` | **RESTRICT** |
+| `conversations` → `channels`, `modes`, `tiers` | **RESTRICT** |
+| `calls` → `voxi_numbers` | **RESTRICT** — release a number via status, never delete it |
+| `calls` → `conversations` | **CASCADE** — the extension dies with its root |
+| `conversation_turns`, `tasks`, `input_requests`, `conversation_degradations`, `jobs` → `conversations` | **CASCADE** |
+| `turn_content` → `conversation_turns` | **CASCADE** |
+| `skill_tools`, `skill_capabilities` → `skills` | **CASCADE** |
+| `skill_tools` → `tools`, `skill_capabilities` → `capabilities` | **RESTRICT** — removing a referenced tool must fail loudly |
+| `subscriptions`, `subscription_events` → `accounts` | **RESTRICT**, retained through erasure |
+
+### Account erasure
+
+Not a cascade — it spans Postgres, Storage, Auth, the telephony provider and
+external integrations, and no transaction covers that. One durable, resumable,
+idempotent `account_erasure` job:
+
+```
+mark account erasing
+  → capture exact Storage object keys and external resource ids
+  → release the Voxi Number with the configured telephony provider
+  → delete Storage objects (never by prefix wildcard)
+  → revoke the Auth identity
+  → revoke external integrations and credentials
+  → delete tenant personal and conversational data
+  → redact retained billing records to financial facts only
+  → mark account erased
+```
+
+**Capture before delete is the whole reason this cannot be a cascade.** Once
+`turn_content` is gone the object keys are gone with it and the files orphan
+permanently. The Account survives as a non-personal tombstone so lawfully
+retained financial records keep a valid foreign key; conversational data is
+deleted, never anonymised and kept.
+
+## Tenant ownership
+
+`account_id` is denormalised onto every table the client reads or that the
+worker filters by: `conversations`, `calls`, `conversation_turns`,
+`turn_content`, `tasks`, `input_requests`, `conversation_degradations`, `jobs`,
+`rules`, `qa_pairs`, `context_snapshots`.
+
+**Wherever it is denormalised alongside a parent reference, tenant consistency
+is enforced relationally** — the parent declares `UNIQUE (account_id, id)` and
+the child's foreign key is the pair. Cross-tenant disagreement becomes
+structurally impossible rather than dependent on application correctness.
+
+`turn_content` is three hops from the account, on the highest-volume table in
+the schema; denormalising there is what stops every transcript render paying
+for a correlated subquery per row.
+
+## RLS ownership model
+
+| Access | Tables |
+| --- | --- |
+| **Client reads own account** | `accounts`, `subscribers`, `voxi_numbers`, `conversations`, `calls`, `conversation_turns`, `turn_content`, `tasks`, `input_requests`, `conversation_degradations`, `rules`, `qa_pairs`, `subscriptions` |
+| **Client writes, field- and operation-constrained** | `rules`, `qa_pairs` (full CRUD); `tasks` (status only); `input_requests` (answer and resolve only); `subscribers` (own profile only) |
+| **Any authenticated read** | `tiers`, `channels`, `modes`, `call_outcomes` — reference data with no tenant dimension |
+| **Service role only, never client-visible** | `skills`, `tools`, `capabilities`, `skill_tools`, `skill_capabilities`, `runtime_drafts`, `runtime_releases`, `runtime_deployment`, `channel_modes`, `jobs`, `context_snapshots`, `subscription_events` |
+
+Ownership path is always `account_id` — one hop, no recursive joins.
+`conversation_degradations` is client-readable so the UI can show **Degraded**,
+with raw error internals kept in a detail column the client-facing projection
+omits.
+
+**Supabase Storage has its own access control**, entirely separate from these
+policies. Object paths are prefixed with the account id and the Storage policy
+keys on that prefix, or row access is airtight while the bytes are not.
+
+## Required indexes
+
+### Correctness and uniqueness
+
+```
+voxi_numbers (e164) UNIQUE
+skills (slug) · tools (name) · capabilities (name) UNIQUE
+tiers (slug) UNIQUE · tiers (rank) UNIQUE
+channels (slug) · modes (slug) UNIQUE
+context_snapshots (account_id, context_hash) PK
+conversation_turns (conversation_id, sequence) UNIQUE
+calls (sip_call_id) UNIQUE
+jobs (job_type, idempotency_key) UNIQUE
+subscription_events (provider_event_id) UNIQUE
+runtime_releases (version) UNIQUE
+runtime_deployment — CHECK constant id, single row
+UNIQUE (account_id, id) on conversations and conversation_turns
+    — support for the composite tenant foreign keys
+```
+
+### Known access paths
+
+```
+conversations (account_id, started_at DESC)          history, cursor pagination
+conversations (account_id, channel_id, started_at DESC)   channel filter
+tasks (account_id, status, created_at DESC)          open Tasks, attention
+input_requests (account_id) WHERE status = 'pending' attention
+conversation_turns (conversation_id, sequence)       transcript render
+turn_content (turn_id)
+jobs (next_attempt_at) WHERE status = 'pending'      the claim query
+jobs (claimed_at) WHERE status = 'processing'        stale-claim sweeper
+conversations (started_at) WHERE lifecycle = 'active'  stale-conversation sweeper
+subscriptions (account_id)
+conversation_degradations (conversation_id)
+```
+
+### Search — first production scope
+
+Scope is **identity, subject, Summary and Tasks**. Transcript text is
+deliberately not indexed.
+
+Rather than two GIN indexes and a ranked union across tables, `conversations`
+carries a single maintained `search_tsv`, written by the enrichment job from
+caller identity, subject, Summary and Task titles:
+
+```
+conversations USING GIN (search_tsv)
+```
+
+One index, one query, no cross-table ranking, **and nothing on the live Turn
+write path** — which is the point, since Turns are written while someone is
+still talking. The obligation this creates: any future feature that lets a Task
+title change must refresh the vector, either in that code path or by a trigger
+on `tasks`.
+
+Search suppresses date grouping and returns a flat ranked set.
+
+### Deferred until measured
+
+Virtualisation, partitioning of `conversation_turns` or `turn_content`, and any
+vector or hybrid retrieval index. Full Transcript search belongs to the later
+chunk-and-embed architecture, not to a larger keyword index now.
+
+## Transaction invariants
+
+1. **A committed Conversation that needs enrichment has its job committed in
+   the same transaction.** No Conversation exists without the work it requires.
+2. **A Conversation and its Call extension are created together**, in one
+   transaction. The database cannot declare "must have a child", so this is an
+   application invariant — recorded, not assumed.
+3. **Each Turn is its own short transaction.** No long-running transaction is
+   held open for the duration of a Conversation.
+4. **A context snapshot is inserted-if-absent before or with the Conversation
+   that references it.**
+5. **Runtime and context identity are written once at bootstrap** and never
+   updated for the life of the record.
+6. **`finish_call` closes lifecycle, and enrichment is a separate job.** The
+   agent process is released as soon as the participant disconnects; no LLM
+   call sits inside a database transaction.
+7. **Erasure captures external resource keys before deleting the rows that
+   reference them.**
+8. **Job insertion is idempotent** on `(job_type, idempotency_key)`.
+
+## Deferred, deliberately
+
+`threads` (long-lived continuity above Conversation for asynchronous channels —
+Conversation must never silently become "the entire WhatsApp history with this
+person"), Email and WhatsApp channel extensions, media and document storage
+rows, `conversation_search_chunks` with embeddings, Memory, per-Subscriber
+OAuth credentials, `accounts 1—N subscribers` with seats and roles, per-skill
+model routing, canary runtime rollout, and re-enrichment provenance.
