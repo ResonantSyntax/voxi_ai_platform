@@ -214,18 +214,26 @@ architectural benefit.
   `is_degraded` is `EXISTS (conversation_degradations)`. A boolean would force
   the UI to infer the reason from error prose, which ADR-0006 forbids.
 - **Call outcome is product meaning and belongs to Call, never Conversation.**
-  `handled | voicemail | abandoned` confirmed. `unresolved` proposed for the
-  real gap — a meaningful conversation happened, Voxi did not resolve the need,
-  no message was left — pending UI confirmation. **`abandoned` must not be
-  widened into a bucket for every unsuccessful Call.**
+  **`handled | voicemail | unresolved | abandoned`, all four confirmed.**
+  `unresolved` covers the real gap — a meaningful conversation happened, Voxi
+  did not resolve the need, no message was left. These are domain values, not
+  UI copy. **`abandoned` must never be widened into a bucket for every
+  unsuccessful Call.**
 - **Outcome does not participate in attention.** No `handled → needs_attention
   = false` logic anywhere. Neither does lifecycle, degradation, or enrichment
   failure. Attention remains `open_tasks > 0 OR needs_subscriber_input`.
-- **Subscriber-input physical representation is reopened**, pending UI Q9. What
-  is locked is the requirement: if the feature ships, the signal is structured,
-  deterministic, machine-readable, may support multiple outstanding requests,
-  and is never inferred from Summary or Transcript prose. No answer payload,
-  response channel, resolution linkage or threading is designed until Q9 lands.
+- **Input Requests are a distinct entity, closed.** A Task is something the
+  Subscriber must do; an Input Request is something Voxi needs *from* them.
+  They are separate concepts and feed attention independently. A Conversation
+  carries 0..N Input Requests, each answered directly through a narrow reply
+  affordance — never a general composer, thread or messaging surface. The
+  signal is structured and deterministic and is never inferred from Summary or
+  Transcript prose.
+
+  The full product rule, owned by the UI worktree:
+  `needs_attention = open_tasks > 0 OR unresolved_input_requests > 0`.
+  Nothing else contributes — not Call outcome, not lifecycle, not enrichment
+  state, not degradation.
 
 ### Round 7 — Account erasure
 
