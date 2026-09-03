@@ -57,12 +57,12 @@ export default function OverviewPage() {
             className="flex min-h-0 flex-col justify-between gap-5 rounded-panel bg-mint-base p-7 text-paper-ink"
           >
             <div className="flex items-center justify-between">
-              <div className="text-label uppercase text-[#065a3b]">Live now</div>
+              <div className="text-label uppercase text-mint-ink-muted">Live now</div>
               <VoxiBars heights={[8, 16, 12, 6]} color="#0b0f0d" />
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="text-lead text-paper-ink">{liveConversation.who}</div>
-              <div className="text-body text-[#065a3b] text-balance">{liveConversation.summary}</div>
+              <div className="text-body text-mint-ink-muted text-balance">{liveConversation.summary}</div>
             </div>
             <div className="flex gap-2">
               <span className="rounded-panel bg-paper-ink px-4 py-2.5 text-body-sm font-bold text-mint-base">

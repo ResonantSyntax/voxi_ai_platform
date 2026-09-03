@@ -8,12 +8,12 @@ export default function BillingPage() {
       <PageHeading title="Billing" side="Sole trader plan" />
       <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-[auto_1fr] gap-2.5">
         <div className="flex flex-col gap-5 rounded-panel bg-mint-base p-8 text-paper-ink">
-          <div className="text-label uppercase text-[#065a3b]">Your plan</div>
+          <div className="text-label uppercase text-mint-ink-muted">Your plan</div>
           <div className="flex items-baseline gap-2.5">
             <div className="text-[44px] leading-[48px] font-bold tracking-[-1px] text-paper-ink">{plan.price}</div>
-            <div className="text-body text-[#065a3b]">{plan.cadence}</div>
+            <div className="text-body text-mint-ink-muted">{plan.cadence}</div>
           </div>
-          <div className="text-body text-[#065a3b] text-balance">{plan.renews}</div>
+          <div className="text-body text-mint-ink-muted text-balance">{plan.renews}</div>
           <button className="self-start rounded-panel bg-paper-ink/10 px-4 py-2.5 text-body-sm font-semibold text-paper-ink">
             Change plan
           </button>

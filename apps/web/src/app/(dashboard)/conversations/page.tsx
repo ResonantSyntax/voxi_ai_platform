@@ -19,14 +19,14 @@ export default function ConversationsPage() {
         {showLive ? (
           <div className="row-span-2 flex min-h-0 flex-col rounded-panel bg-mint-base p-8 text-paper-ink">
             <CardHeader>
-              <div className="text-label uppercase text-[#065a3b]">Live · {liveConversation.elapsed}</div>
+              <div className="text-label uppercase text-mint-ink-muted">Live · {liveConversation.elapsed}</div>
               <VoxiBars heights={[8, 16, 12, 6]} color="#0b0f0d" />
             </CardHeader>
             <div className="mt-5 flex flex-col gap-1">
               <Link href={`/conversations/${liveConversation.id}`} className="text-title text-paper-ink text-balance">
                 {liveConversation.who}
               </Link>
-              <div className="text-body text-[#065a3b]">{liveConversation.meta}</div>
+              <div className="text-body text-mint-ink-muted">{liveConversation.meta}</div>
             </div>
             <div className="mt-7 flex min-h-0 flex-1 flex-col gap-4 overflow-auto">
               {liveConversation.transcript.map((m, i) => (
@@ -34,7 +34,7 @@ export default function ConversationsPage() {
                   <div
                     className={
                       "w-[52px] flex-none text-body-sm font-bold " +
-                      (m.who === "Voxi" ? "text-paper-ink" : "text-[#065a3b]")
+                      (m.who === "Voxi" ? "text-paper-ink" : "text-mint-ink-muted")
                     }
                   >
                     {m.who}

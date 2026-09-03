@@ -18,9 +18,13 @@ colors:
   agent-mint-chip: "rgba(10,239,154,.14)"
   agent-mint-line: "rgba(10,239,154,.40)"
   agent-mint-line-soft: "rgba(10,239,154,.28)"
+  agent-mint-ink-muted: "#065a3b"
   finished-lime: "#8cdd2c"
   finished-lime-tint: "rgba(140,221,44,.08)"
   finished-lime-line: "rgba(140,221,44,.35)"
+  paper-base: "#e8e4d6"
+  paper-ink: "#0b0f0d"
+  paper-ink-muted: "#5e5a4e"
   text-primary: "#ffffff"
   text-secondary: "#a9afac"
   text-tertiary: "#8a918e"
@@ -109,6 +113,7 @@ rounded:
   card-lg: "24px"
   pill: "100px"
   device: "52px"
+  panel: "6px"
 spacing:
   "1": "4px"
   "2": "7px"
@@ -145,13 +150,18 @@ components:
   card:
     backgroundColor: "{colors.panel}"
     textColor: "{colors.text-primary}"
-    rounded: "{rounded.card-lg}"
-    padding: "18px 16px"
-  card-agent:
-    backgroundColor: "{colors.agent-mint-tint}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.card}"
-    padding: "20px"
+    rounded: "{rounded.panel}"
+    padding: "28px 30px"
+  card-live:
+    backgroundColor: "{colors.agent-mint}"
+    textColor: "{colors.paper-ink}"
+    rounded: "{rounded.panel}"
+    padding: "28px 30px"
+  card-paper:
+    backgroundColor: "{colors.paper-base}"
+    textColor: "{colors.paper-ink}"
+    rounded: "{rounded.panel}"
+    padding: "28px 30px"
   chip:
     backgroundColor: "{colors.panel}"
     textColor: "{colors.text-secondary}"
@@ -272,6 +282,10 @@ that means done, and a five-rung grey ladder for everything else.
   state on buttons, despite the token name.
 - **Agent Mint Deep** (`#08c57f`): the dimmest bar in the orb. It exists to
   give the voice bars depth, not as a pressed state.
+- **Agent Mint Ink Muted** (`#065a3b`): secondary/meta text sitting on a flat
+  mint fill — the "Live now" label, elapsed time, summary prose, a caller's
+  transcript lines. Paired with Paper Ink for the primary text on the same
+  surface, the way Paper Ink Muted pairs with Paper Ink on a paper card.
 
 ### Secondary
 
@@ -279,6 +293,16 @@ that means done, and a five-rung grey ladder for everything else.
   left for you to do. Confirmation badges ("Rule saved"), settled turn labels
   ("Sent"), and the one dashboard stat that counts things Voxi disposed of.
   Lime never appears on anything you can tap.
+
+### Tertiary
+
+- **Paper** (`#e8e4d6`): the surface for anything that needs the Subscriber —
+  a Task or an Input Request alike ("Needs you", "Needs a reply"). It is
+  deliberately the one warm, non-black surface in a dark-only system, so the
+  thing waiting on you reads as a different material from everything Voxi is
+  merely reporting. Paired text: **Paper Ink** (`#0b0f0d`) for the subject,
+  **Paper Ink Muted** (`#5e5a4e`) for meta/secondary copy — the same ink used
+  on a flat mint button, since Board Black and Paper Ink are the same value.
 
 ### Neutral
 
@@ -312,11 +336,22 @@ that means done, and a five-rung grey ladder for everything else.
 
 ### Named Rules
 
-**The Authorship Rule.** Mint has exactly two fills and they mean opposite
-things. Flat mint (`#0aef9a` background, `#0b0f0d` text) = *the Subscriber*
-does it. Outlined mint (mint text, `rgba(10,239,154,.07)` fill,
+**The Authorship Rule.** On a *control* (a button, an inline action, a
+section label), mint has exactly two fills and they mean opposite things.
+Flat mint (`#0aef9a` background, `#0b0f0d` text) = *the Subscriber* does it.
+Outlined mint (mint text, `rgba(10,239,154,.07)` fill,
 `rgba(10,239,154,.30–.40)` border) = *Voxi* does it. There is no third mint,
 and neither one is available for "this is the important button".
+
+**The Needs-You Rule.** On a *surface* (a card, a panel), the three
+non-neutral fills answer three different questions, and none of them is
+"who does it": Paper = something needs the Subscriber, right now, calmly
+(a Task or an Input Request — the distinction is the label, not the card).
+Flat mint = Voxi is live and active this instant (an in-progress call or
+Conversation). Dark panel = passive information Voxi is merely reporting
+(history, settings, done work). A screen may show at most one paper surface
+and one live surface at a time — if nothing is live, that slot simply
+doesn't render.
 
 **The Dead Circuit Rule.** Lime marks a closed line. If an element is tappable,
 it cannot be lime. A lime badge, label, or stat is a statement that the thing
@@ -476,16 +511,19 @@ no 2px anywhere.
 
 ## Shapes
 
-Radius scales with the element, in seven steps: chip `8px` → small `14px` →
-medium `16px` → large `18px` → card `22px` → card-large `24px` → pill `100px`.
-A `52px` device radius exists for the phone frame and is phone-only.
+**Panel (`6px`) is the default radius for every card, button, container, and
+the drawer** — a flat, tight corner rather than a soft one. This is the
+system as actually built (`apps/web`), superseding the wider 8–24px scale
+below wherever the two disagree. Anything circular — the orb, the nav dot,
+count badges, toggle knobs, radio dots — is `pill` (`100px`), full stop.
 
-The mapping is consistent enough to be predictable. An 11px-tall uppercase
-label chip gets 8px. A tappable text chip or an inline agent action gets 14px.
-An option button inside a card gets 16px. A full-width screen button gets 18px.
-An agent-owned card gets 22px. An ordinary card, a list container, or a text
-input gets 24px. Anything circular — the orb, avatars, toggle knobs, radio
-dots, the send button, the metered progress track — gets 100px.
+The 8–24px scale (`chip` `8px` → `sm` `14px` → `md` `16px` → `lg` `18px` →
+`card` `22px` → `card-lg` `24px`) is legacy from the original mobile mockup.
+Treat it as available for small mobile-only inline controls that predate
+`panel` (a fact chip, a toggle knob, an input field) where a softer corner
+still reads correctly next to `panel`-radius cards and buttons — never revive
+it for a new card, container, or full-width button. A `52px` device radius
+exists for the phone frame only and carries no other meaning.
 
 Bottom sheets break the pattern deliberately: `36px 36px 0 0`, larger than any
 card, with a 38×4px `#3a443f` grab handle centred above the content. The sheet
@@ -573,15 +611,27 @@ heights and the glow stops breathing.
 
 ### Cards / Containers
 
-- **Corner style:** `24px` for ordinary cards and list containers, `22px` for
-  agent-owned cards.
-- **Background:** Panel (`#131916`) for ordinary, `rgba(10,239,154,.07)` for
-  agent-owned.
-- **Border:** 1px — `#242d29` ordinary, `rgba(10,239,154,.40)` agent-owned,
-  `#31403a` when selected (with the fill moving to Well).
+Three surfaces, one question each — see the Needs-You Rule.
+
+- **Dark** (default): Panel (`#131916`) fill, 1px `#242d29` border,
+  `#ffffff`/`#a9afac` text. Passive/historical content — a ledger, settings, a
+  handled-calls list.
+- **Paper** (needs the Subscriber): `#e8e4d6` fill, no border, `#0b0f0d` text
+  for the subject and `#5e5a4e` for meta. A Task ("Needs you") and an Input
+  Request ("Needs a reply") render identically — the label is what tells them
+  apart, never the card. Row dividers inside a paper card are `Paper Ink` at
+  10% opacity, not `line-subtle`.
+- **Live** (Voxi active right now): flat Agent Mint (`#0aef9a`) fill, `#0b0f0d`
+  text for the subject and `#065a3b` for meta. Only ever one on screen — a
+  live Call or Conversation. Its own action buttons invert: `#0b0f0d` fill
+  with mint or paper-ink text.
+- **Corner style:** `6px` (`panel`) on every card, uniformly. See Shapes.
+- **Selected state:** border moves to `#31403a` with the fill moving to Well —
+  applies to the dark card only; paper and live cards aren't selectable.
 - **Shadow strategy:** none. See Elevation & Depth.
-- **Internal padding:** `18px 16px` for a list card, `20px` for an agent card,
-  `22px` for a feature card such as the current plan.
+- **Internal padding:** `28px 30px` for a feature-scale card (Overview,
+  Billing plan), tightening to `18px`–`22px` for a denser list card. Follow
+  the surface's role, not a fixed number.
 - **Grouped list container:** a single `24px` container with `overflow: hidden`
   and rows divided by a 1px `#242d29` top border — with the **first row's
   divider set to `transparent`**, not omitted, so the rows keep identical
@@ -674,6 +724,11 @@ timestamp beside it. Max width 82–88%.
   rather than removing it, so row heights stay identical.
 - **Do** let one subject own each screen. If two things want 26px, they want
   two screens.
+- **Do** use the flat `6px` `panel` radius for every new card, button, and
+  container. The wider 8–24px scale is legacy — see Shapes.
+- **Do** render anything needing the Subscriber (Task or Input Request) on a
+  paper card, never an outlined-mint one. Outlined mint stays for inline
+  Voxi-suggested actions, not card surfaces.
 
 ### Don't:
 
