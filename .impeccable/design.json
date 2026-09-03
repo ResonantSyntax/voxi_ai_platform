@@ -1,0 +1,653 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T13:37:04.567Z",
+  "title": "Design System: Voxi",
+  "extensions": {
+    "colorMeta": {
+      "room-black": {
+        "role": "neutral",
+        "displayName": "Room Black",
+        "canonical": "oklch(14.1% 0.006 174.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.006 174.7)",
+          "oklch(26.0% 0.006 174.7)",
+          "oklch(37.0% 0.006 174.7)",
+          "oklch(48.0% 0.006 174.7)",
+          "oklch(59.0% 0.006 174.7)",
+          "oklch(70.0% 0.006 174.7)",
+          "oklch(82.0% 0.006 174.7)",
+          "oklch(95.0% 0.006 174.7)"
+        ]
+      },
+      "board-black": {
+        "role": "neutral",
+        "displayName": "Board Black",
+        "canonical": "oklch(16.3% 0.008 163.8)",
+        "tonalRamp": [
+          "oklch(15.0% 0.008 163.8)",
+          "oklch(26.0% 0.008 163.8)",
+          "oklch(37.0% 0.008 163.8)",
+          "oklch(48.0% 0.008 163.8)",
+          "oklch(59.0% 0.008 163.8)",
+          "oklch(70.0% 0.008 163.8)",
+          "oklch(82.0% 0.008 163.8)",
+          "oklch(95.0% 0.008 163.8)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "oklch(20.6% 0.011 163.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.011 163.7)",
+          "oklch(26.0% 0.011 163.7)",
+          "oklch(37.0% 0.011 163.7)",
+          "oklch(48.0% 0.011 163.7)",
+          "oklch(59.0% 0.011 163.7)",
+          "oklch(70.0% 0.011 163.7)",
+          "oklch(82.0% 0.011 163.7)",
+          "oklch(95.0% 0.011 163.7)"
+        ]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Well",
+        "canonical": "oklch(24.0% 0.012 167.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.012 167.6)",
+          "oklch(26.0% 0.012 167.6)",
+          "oklch(37.0% 0.012 167.6)",
+          "oklch(48.0% 0.012 167.6)",
+          "oklch(59.0% 0.012 167.6)",
+          "oklch(70.0% 0.012 167.6)",
+          "oklch(82.0% 0.012 167.6)",
+          "oklch(95.0% 0.012 167.6)"
+        ]
+      },
+      "raised-panel": {
+        "role": "neutral",
+        "displayName": "Raised Panel",
+        "canonical": "oklch(28.7% 0.014 166.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 166.6)",
+          "oklch(26.0% 0.014 166.6)",
+          "oklch(37.0% 0.014 166.6)",
+          "oklch(48.0% 0.014 166.6)",
+          "oklch(59.0% 0.014 166.6)",
+          "oklch(70.0% 0.014 166.6)",
+          "oklch(82.0% 0.014 166.6)",
+          "oklch(95.0% 0.014 166.6)"
+        ]
+      },
+      "line-subtle": {
+        "role": "neutral",
+        "displayName": "Line Subtle",
+        "canonical": "oklch(22.7% 0.012 167.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.012 167.5)",
+          "oklch(26.0% 0.012 167.5)",
+          "oklch(37.0% 0.012 167.5)",
+          "oklch(48.0% 0.012 167.5)",
+          "oklch(59.0% 0.012 167.5)",
+          "oklch(70.0% 0.012 167.5)",
+          "oklch(82.0% 0.012 167.5)",
+          "oklch(95.0% 0.012 167.5)"
+        ]
+      },
+      "line-default": {
+        "role": "neutral",
+        "displayName": "Line Default",
+        "canonical": "oklch(28.7% 0.014 166.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 166.6)",
+          "oklch(26.0% 0.014 166.6)",
+          "oklch(37.0% 0.014 166.6)",
+          "oklch(48.0% 0.014 166.6)",
+          "oklch(59.0% 0.014 166.6)",
+          "oklch(70.0% 0.014 166.6)",
+          "oklch(82.0% 0.014 166.6)",
+          "oklch(95.0% 0.014 166.6)"
+        ],
+        "note": "Same value as raised-panel by design — a border here is a 1px sliver of the next surface up."
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line Strong",
+        "canonical": "oklch(35.6% 0.022 168.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.022 168.7)",
+          "oklch(26.0% 0.022 168.7)",
+          "oklch(37.0% 0.022 168.7)",
+          "oklch(48.0% 0.022 168.7)",
+          "oklch(59.0% 0.022 168.7)",
+          "oklch(70.0% 0.022 168.7)",
+          "oklch(82.0% 0.022 168.7)",
+          "oklch(95.0% 0.022 168.7)"
+        ]
+      },
+      "line-control": {
+        "role": "neutral",
+        "displayName": "Line Control",
+        "canonical": "oklch(37.6% 0.016 164.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.016 164.0)",
+          "oklch(26.0% 0.016 164.0)",
+          "oklch(37.0% 0.016 164.0)",
+          "oklch(48.0% 0.016 164.0)",
+          "oklch(59.0% 0.016 164.0)",
+          "oklch(70.0% 0.016 164.0)",
+          "oklch(82.0% 0.016 164.0)",
+          "oklch(95.0% 0.016 164.0)"
+        ]
+      },
+      "agent-mint": {
+        "role": "primary",
+        "displayName": "Agent Mint",
+        "canonical": "oklch(84.0% 0.193 158.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.193 158.6)",
+          "oklch(26.0% 0.193 158.6)",
+          "oklch(37.0% 0.193 158.6)",
+          "oklch(48.0% 0.193 158.6)",
+          "oklch(59.0% 0.193 158.6)",
+          "oklch(70.0% 0.193 158.6)",
+          "oklch(82.0% 0.193 158.6)",
+          "oklch(95.0% 0.193 158.6)"
+        ],
+        "note": "Semantic, not decorative. Flat fill = the Subscriber acts; outlined = Voxi acts."
+      },
+      "agent-mint-hover": {
+        "role": "primary",
+        "displayName": "Agent Mint Hover",
+        "canonical": "oklch(85.7% 0.172 162.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.172 162.5)",
+          "oklch(26.0% 0.172 162.5)",
+          "oklch(37.0% 0.172 162.5)",
+          "oklch(48.0% 0.172 162.5)",
+          "oklch(59.0% 0.172 162.5)",
+          "oklch(70.0% 0.172 162.5)",
+          "oklch(82.0% 0.172 162.5)",
+          "oklch(95.0% 0.172 162.5)"
+        ]
+      },
+      "agent-mint-deep": {
+        "role": "primary",
+        "displayName": "Agent Mint Deep",
+        "canonical": "oklch(72.6% 0.166 158.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.166 158.9)",
+          "oklch(26.0% 0.166 158.9)",
+          "oklch(37.0% 0.166 158.9)",
+          "oklch(48.0% 0.166 158.9)",
+          "oklch(59.0% 0.166 158.9)",
+          "oklch(70.0% 0.166 158.9)",
+          "oklch(82.0% 0.166 158.9)",
+          "oklch(95.0% 0.166 158.9)"
+        ]
+      },
+      "finished-lime": {
+        "role": "secondary",
+        "displayName": "Finished Lime",
+        "canonical": "oklch(81.5% 0.212 132.1)",
+        "tonalRamp": [
+          "oklch(15.0% 0.212 132.1)",
+          "oklch(26.0% 0.212 132.1)",
+          "oklch(37.0% 0.212 132.1)",
+          "oklch(48.0% 0.212 132.1)",
+          "oklch(59.0% 0.212 132.1)",
+          "oklch(70.0% 0.212 132.1)",
+          "oklch(82.0% 0.212 132.1)",
+          "oklch(95.0% 0.212 132.1)"
+        ],
+        "note": "Confirmation only. Never appears on anything tappable."
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Text Primary",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 89.9)",
+          "oklch(26.0% 0.000 89.9)",
+          "oklch(37.0% 0.000 89.9)",
+          "oklch(48.0% 0.000 89.9)",
+          "oklch(59.0% 0.000 89.9)",
+          "oklch(70.0% 0.000 89.9)",
+          "oklch(82.0% 0.000 89.9)",
+          "oklch(95.0% 0.000 89.9)"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Text Secondary",
+        "canonical": "oklch(74.8% 0.008 164.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.008 164.9)",
+          "oklch(26.0% 0.008 164.9)",
+          "oklch(37.0% 0.008 164.9)",
+          "oklch(48.0% 0.008 164.9)",
+          "oklch(59.0% 0.008 164.9)",
+          "oklch(70.0% 0.008 164.9)",
+          "oklch(82.0% 0.008 164.9)",
+          "oklch(95.0% 0.008 164.9)"
+        ]
+      },
+      "text-tertiary": {
+        "role": "neutral",
+        "displayName": "Text Tertiary",
+        "canonical": "oklch(65.0% 0.009 168.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.009 168.6)",
+          "oklch(26.0% 0.009 168.6)",
+          "oklch(37.0% 0.009 168.6)",
+          "oklch(48.0% 0.009 168.6)",
+          "oklch(59.0% 0.009 168.6)",
+          "oklch(70.0% 0.009 168.6)",
+          "oklch(82.0% 0.009 168.6)",
+          "oklch(95.0% 0.009 168.6)"
+        ]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Text Muted",
+        "canonical": "oklch(54.8% 0.011 171.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.011 171.5)",
+          "oklch(26.0% 0.011 171.5)",
+          "oklch(37.0% 0.011 171.5)",
+          "oklch(48.0% 0.011 171.5)",
+          "oklch(59.0% 0.011 171.5)",
+          "oklch(70.0% 0.011 171.5)",
+          "oklch(82.0% 0.011 171.5)",
+          "oklch(95.0% 0.011 171.5)"
+        ],
+        "note": "Large-text only: 3.4–4.1:1. The source material uses it at 13–14px, which misses AA."
+      },
+      "text-faint": {
+        "role": "neutral",
+        "displayName": "Text Faint",
+        "canonical": "oklch(44.1% 0.012 164.4)",
+        "tonalRamp": [
+          "oklch(15.0% 0.012 164.4)",
+          "oklch(26.0% 0.012 164.4)",
+          "oklch(37.0% 0.012 164.4)",
+          "oklch(48.0% 0.012 164.4)",
+          "oklch(59.0% 0.012 164.4)",
+          "oklch(70.0% 0.012 164.4)",
+          "oklch(82.0% 0.012 164.4)",
+          "oklch(95.0% 0.012 164.4)"
+        ],
+        "note": "FAILS WCAG 2.2 AA: 2.1–2.6:1 on every surface in the system."
+      },
+      "text-danger": {
+        "role": "neutral",
+        "displayName": "Text Danger",
+        "canonical": "oklch(80.8% 0.103 19.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.103 19.6)",
+          "oklch(26.0% 0.103 19.6)",
+          "oklch(37.0% 0.103 19.6)",
+          "oklch(48.0% 0.103 19.6)",
+          "oklch(59.0% 0.103 19.6)",
+          "oklch(70.0% 0.103 19.6)",
+          "oklch(82.0% 0.103 19.6)",
+          "oklch(95.0% 0.103 19.6)"
+        ]
+      },
+      "agent-mint-tint": {
+        "role": "primary",
+        "displayName": "Agent Mint Tint",
+        "canonical": "rgba(10,239,154,.07)",
+        "note": "Fill behind a mint-outlined card — an action Voxi performs.",
+        "derivedFrom": "agent-mint"
+      },
+      "agent-mint-chip": {
+        "role": "primary",
+        "displayName": "Agent Mint Chip",
+        "canonical": "rgba(10,239,154,.14)",
+        "note": "Background for a small agent label chip.",
+        "derivedFrom": "agent-mint"
+      },
+      "agent-mint-line": {
+        "role": "primary",
+        "displayName": "Agent Mint Line",
+        "canonical": "rgba(10,239,154,.40)",
+        "note": "Border on an agent-owned card.",
+        "derivedFrom": "agent-mint"
+      },
+      "agent-mint-line-soft": {
+        "role": "primary",
+        "displayName": "Agent Mint Line Soft",
+        "canonical": "rgba(10,239,154,.28)",
+        "note": "Border on an agent turn bubble.",
+        "derivedFrom": "agent-mint"
+      },
+      "finished-lime-tint": {
+        "role": "secondary",
+        "displayName": "Finished Lime Tint",
+        "canonical": "rgba(140,221,44,.08)",
+        "note": "Fill behind a confirmation badge.",
+        "derivedFrom": "finished-lime"
+      },
+      "finished-lime-line": {
+        "role": "secondary",
+        "displayName": "Finished Lime Line",
+        "canonical": "rgba(140,221,44,.35)",
+        "note": "Border on a confirmation badge.",
+        "derivedFrom": "finished-lime"
+      }
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "One-thing-at-a-time screens. The single task or Conversation the screen hands you."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Screen title — \"Calls\", \"Settings\", \"This month\", \"All clear\"."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The subject of a detail screen."
+      },
+      "speech": {
+        "displayName": "Speech",
+        "purpose": "The orb talking, and detail subjects sitting under a back link."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "A card subject line. Runs 17–18px in practice; treat as one rung."
+      },
+      "body-lg": {
+        "displayName": "Body Large",
+        "purpose": "Summary prose that carries a whole screen."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default reading size. 15px on phone and desktop alike — it never scales up."
+      },
+      "body-sm": {
+        "displayName": "Body Small",
+        "purpose": "Fact-row keys, chip labels, dense secondary copy."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Timestamps, source lines, nav labels."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Primary and secondary button labels; secondary drops to 600."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase section labels. Mint when the section is Voxi’s, #8a918e when it is not."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Identifiers and tabular figures only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "none",
+        "value": "none",
+        "purpose": "The system has no shadows. Depth is five surface tones plus 1px lines. Do not add one."
+      },
+      {
+        "name": "device-frame",
+        "value": "0 40px 90px rgba(0,0,0,.6), 0 0 0 1px #242d29",
+        "purpose": "NOT a UI token. How the phone is presented in a design canvas. Must never be inherited by cards, sheets or modals."
+      },
+      {
+        "name": "agent-glow",
+        "value": "radial-gradient(circle, rgba(10,239,154,.22), transparent 70%)",
+        "purpose": "The only light source in the system: Voxi being present behind the orb. A background, not a box-shadow. Warms to .24–.28 on first-run."
+      },
+      {
+        "name": "nav-scrim",
+        "value": "linear-gradient(to top, #0b0f0d 62%, rgba(11,15,13,0))",
+        "purpose": "Fades list content under the bottom nav. A fade, not a backstop — lists still need their 150px tail spacer."
+      }
+    ],
+    "motion": [
+      {
+        "name": "voxi-bar",
+        "value": "@keyframes voxi-bar { 0%,100% { transform: scaleY(.35) } 50% { transform: scaleY(1) } }",
+        "purpose": "The orb’s voice bars and every \"Voxi is working\" indicator."
+      },
+      {
+        "name": "voxi-bar-timing",
+        "value": "1.4s ease-in-out infinite",
+        "purpose": "Bar pulse. Each bar staggered 0.2s behind the last. Runs 1.5–1.6s on larger orbs."
+      },
+      {
+        "name": "voxi-glow",
+        "value": "3.4s ease-in-out infinite (opacity .35→.7, scale 1→1.08)",
+        "purpose": "The glow breathing on the first-run screen."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce) { animation: none }",
+        "purpose": "Mandatory. Bars hold at rest height, glow stops breathing."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-frame",
+        "value": "402px",
+        "purpose": "The frame the whole system was measured on. 26px gutter, 44px hit-target floor, 52px device radius."
+      },
+      {
+        "name": "desktop-content-min",
+        "value": "560px",
+        "purpose": "Narrow end of the dashboard content column."
+      },
+      {
+        "name": "desktop-content-max",
+        "value": "720px",
+        "purpose": "Wide end. Body stays 15px; only headings scale (34→44, 32→38, 30→34)."
+      }
+    ],
+    "gutters": [
+      {
+        "name": "screen-gutter",
+        "value": "26px",
+        "purpose": "Full-bleed screens, where text meets the edge."
+      },
+      {
+        "name": "list-inset",
+        "value": "20px",
+        "purpose": "Scrolling card lists. Cards carry their own 16–20px padding, landing text on the same optical margin."
+      },
+      {
+        "name": "nav-tail",
+        "value": "150px",
+        "purpose": "Spacer ending every scrolling list under the bottom nav. 60px on a detail screen with no nav."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The Subscriber’s action. Flat Agent Mint, full width, stacked above any secondary.",
+      "html": "<button class=\"ds-btn-primary\">Open</button>",
+      "css": ".ds-btn-primary{display:block;width:100%;box-sizing:border-box;padding:17px;border:none;border-radius:18px;background:var(--color-agent-mint, #0aef9a);color:var(--color-board-black, #0b0f0d);font:700 16px/16px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;text-align:center;cursor:pointer;transition:background .18s ease-in-out}.ds-btn-primary:hover{background:var(--color-agent-mint-hover, #3df2ae)}.ds-btn-primary:active{background:var(--color-agent-mint-deep, #08c57f)}.ds-btn-primary:focus-visible{outline:2px solid var(--color-text-primary, #ffffff);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The deferral. Panel fill, no mint — it is not an action anyone is claiming. Sits 11px below the primary.",
+      "html": "<button class=\"ds-btn-secondary\">Later</button>",
+      "css": ".ds-btn-secondary{display:block;width:100%;box-sizing:border-box;padding:17px;border:1px solid var(--color-line-default, #242d29);border-radius:18px;background:var(--color-panel, #131916);color:var(--color-text-secondary, #a9afac);font:600 16px/16px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;text-align:center;cursor:pointer;transition:background .18s ease-in-out,color .18s ease-in-out}.ds-btn-secondary:hover{background:var(--color-well, #1a211e);color:var(--color-text-primary, #ffffff)}.ds-btn-secondary:focus-visible{outline:2px solid var(--color-line-strong, #31403a);outline-offset:2px}"
+    },
+    {
+      "name": "Agent Action Button",
+      "kind": "button",
+      "refersTo": "button-agent",
+      "description": "Voxi acting on your behalf. Outlined mint — the outline is the whole tell. Never flat.",
+      "html": "<button class=\"ds-btn-agent\">Hand to Voxi</button>",
+      "css": ".ds-btn-agent{display:inline-block;padding:11px 15px;border:1px solid rgba(10,239,154,.3);border-radius:14px;background:var(--color-agent-mint-tint, rgba(10,239,154,.07));color:var(--color-agent-mint, #0aef9a);font:700 14px/1 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;cursor:pointer;transition:background .18s ease-in-out}.ds-btn-agent:hover{background:var(--color-agent-mint-chip, rgba(10,239,154,.14))}.ds-btn-agent:focus-visible{outline:2px solid var(--color-agent-mint, #0aef9a);outline-offset:2px}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The ordinary list card. Panel on Board Black, 24px radius, 1px border, no shadow.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-chip\">Phone Call</div><div class=\"ds-card-title\">Move Thursday’s parent–teacher meeting</div><div class=\"ds-card-meta\">Mrs Adeyemi · Oakfield Primary</div></div>",
+      "css": ".ds-card{box-sizing:border-box;max-width:360px;padding:18px 16px;border:1px solid var(--color-line-default, #242d29);border-radius:24px;background:var(--color-panel, #131916);display:flex;flex-direction:column;gap:11px;font-family:-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-card-chip{align-self:flex-start;padding:4px 8px;border-radius:8px;background:var(--color-well, #1a211e);color:var(--color-text-tertiary, #8a918e);font:700 11px/14px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;letter-spacing:.6px;text-transform:uppercase}.ds-card-title{font:600 17px/24px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;color:var(--color-text-primary, #ffffff);text-wrap:pretty}.ds-card-meta{font:400 13px/22px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;color:var(--color-text-muted, #6b7370)}"
+    },
+    {
+      "name": "Agent Card",
+      "kind": "card",
+      "refersTo": "card-agent",
+      "description": "A card Voxi owns — it is asking you something. Mint tint, mint border, mint label: three signals, so the state survives without colour.",
+      "html": "<div class=\"ds-card-agent\"><div class=\"ds-agent-head\"><span class=\"ds-agent-chip\">Phone Call</span><span class=\"ds-agent-from\">Mrs Adeyemi</span></div><div class=\"ds-agent-q\">She asked to move Thursday to 4pm. Shall I confirm?</div><div class=\"ds-agent-opts\"><button class=\"ds-opt ds-opt-primary\">Confirm 4pm</button><button class=\"ds-opt\">Ask me later</button></div></div>",
+      "css": ".ds-card-agent{box-sizing:border-box;max-width:360px;padding:20px;border:1px solid var(--color-agent-mint-line, rgba(10,239,154,.40));border-radius:22px;background:var(--color-agent-mint-tint, rgba(10,239,154,.07));display:flex;flex-direction:column;gap:14px;font-family:-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-agent-head{display:flex;align-items:center;gap:8px}.ds-agent-chip{padding:4px 8px;border-radius:8px;background:var(--color-agent-mint-chip, rgba(10,239,154,.14));color:var(--color-agent-mint, #0aef9a);font:700 11px/14px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;letter-spacing:.6px;text-transform:uppercase}.ds-agent-from{font:400 13px/1.4 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;color:var(--color-text-tertiary, #8a918e)}.ds-agent-q{font:600 17px/25px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;color:var(--color-text-primary, #ffffff);text-wrap:pretty}.ds-agent-opts{display:flex;flex-wrap:wrap;gap:8px}.ds-opt{padding:12px 16px;border:1px solid var(--color-line-control, #3a443f);border-radius:16px;background:transparent;color:var(--color-text-primary, #ffffff);font:700 14px/1 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;cursor:pointer}.ds-opt-primary{background:var(--color-agent-mint, #0aef9a);border-color:var(--color-agent-mint, #0aef9a);color:var(--color-board-black, #0b0f0d)}.ds-opt:hover{background:var(--color-well, #1a211e)}.ds-opt-primary:hover{background:var(--color-agent-mint-hover, #3df2ae)}.ds-opt:focus-visible{outline:2px solid var(--color-text-primary, #ffffff);outline-offset:2px}"
+    },
+    {
+      "name": "Composer Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Speaking to Voxi. Panel pill at 24px radius with a flat mint send affordance carrying three bars, not an arrow.",
+      "html": "<div class=\"ds-composer\"><div class=\"ds-composer-field\" role=\"textbox\" aria-label=\"Tell Voxi what to do\">Tell Voxi what to do</div><button class=\"ds-composer-send\" aria-label=\"Send\"><span></span><span></span><span></span></button></div>",
+      "css": ".ds-composer{box-sizing:border-box;max-width:360px;display:flex;align-items:center;gap:12px;font-family:-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-composer-field{flex:1;padding:14px 18px;border:1px solid var(--color-line-default, #242d29);border-radius:24px;background:var(--color-panel, #131916);color:var(--color-text-muted, #6b7370);font:400 15px/22px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-composer-field:focus-visible{outline:2px solid var(--color-line-strong, #31403a);outline-offset:2px;color:var(--color-text-primary, #ffffff)}.ds-composer-send{width:48px;height:48px;flex:none;border:none;border-radius:100px;background:var(--color-agent-mint, #0aef9a);display:flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:background .18s ease-in-out}.ds-composer-send span{width:3px;border-radius:2px;background:var(--color-board-black, #0b0f0d)}.ds-composer-send span:nth-child(1){height:10px}.ds-composer-send span:nth-child(2){height:18px}.ds-composer-send span:nth-child(3){height:13px}.ds-composer-send:hover{background:var(--color-agent-mint-hover, #3df2ae)}.ds-composer-send:focus-visible{outline:2px solid var(--color-text-primary, #ffffff);outline-offset:2px}"
+    },
+    {
+      "name": "The Orb",
+      "kind": "custom",
+      "refersTo": "orb",
+      "description": "Voxi’s entire body: four bars at heights 14/24/18/9px in a 62px Panel circle with a mint border, over a radial mint glow. No face, no avatar, no logotype — the product’s claim is that Voxi speaks, so its representation is a waveform.",
+      "html": "<div class=\"ds-orb-wrap\"><button class=\"ds-orb\" aria-label=\"Voxi\"><span class=\"ds-orb-glow\"></span><span class=\"ds-orb-bars\"><i></i><i></i><i></i><i></i></span></button></div>",
+      "css": ".ds-orb-wrap{padding:24px;background:var(--color-board-black, #0b0f0d);border-radius:24px;display:inline-flex}.ds-orb{position:relative;width:62px;height:62px;padding:0;border:1px solid var(--color-agent-mint, #0aef9a);border-radius:100px;background:var(--color-panel, #131916);display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}.ds-orb-glow{position:absolute;inset:-8px;border-radius:100px;background:radial-gradient(circle,rgba(10,239,154,.22),transparent 70%);pointer-events:none}.ds-orb-bars{display:flex;align-items:center;justify-content:center;gap:4px;height:24px}.ds-orb-bars i{width:3px;border-radius:2px;background:var(--color-agent-mint, #0aef9a);animation:ds-voxi-bar 1.4s ease-in-out infinite}.ds-orb-bars i:nth-child(1){height:14px}.ds-orb-bars i:nth-child(2){height:24px;animation-delay:.2s}.ds-orb-bars i:nth-child(3){height:18px;background:var(--color-agent-mint-hover, #3df2ae);animation-delay:.4s}.ds-orb-bars i:nth-child(4){height:9px;background:var(--color-agent-mint-deep, #08c57f);animation-delay:.6s}.ds-orb:focus-visible{outline:2px solid var(--color-text-primary, #ffffff);outline-offset:3px}@keyframes ds-voxi-bar{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}@media (prefers-reduced-motion:reduce){.ds-orb-bars i{animation:none}}"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Two 64px text labels flanking the orb. No icons, no pills, no underline. The active label goes white — or mint when the active surface is one Voxi owns.",
+      "html": "<div class=\"ds-nav\"><a class=\"ds-nav-label ds-nav-active\" href=\"#\">Calls</a><span class=\"ds-nav-orb\"><span class=\"ds-nav-glow\"></span><span class=\"ds-nav-bars\"><i></i><i></i><i></i><i></i></span></span><a class=\"ds-nav-label\" href=\"#\">Settings</a></div>",
+      "css": ".ds-nav{box-sizing:border-box;width:100%;max-width:402px;padding:14px 34px 30px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,var(--color-board-black, #0b0f0d) 62%,rgba(11,15,13,0));font-family:-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-nav-label{width:64px;font:600 13px/1.4 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;color:var(--color-text-muted, #6b7370);text-decoration:none}.ds-nav-label:last-child{text-align:right}.ds-nav-active{color:var(--color-text-primary, #ffffff)}.ds-nav-label:hover{color:var(--color-text-secondary, #a9afac)}.ds-nav-label:focus-visible{outline:2px solid var(--color-line-strong, #31403a);outline-offset:2px}.ds-nav-orb{position:relative;width:62px;height:62px;flex:none;border:1px solid var(--color-agent-mint, #0aef9a);border-radius:100px;background:var(--color-panel, #131916);display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}.ds-nav-glow{position:absolute;inset:0;border-radius:100px;background:radial-gradient(circle,rgba(10,239,154,.22),transparent 70%)}.ds-nav-bars{display:flex;align-items:center;gap:4px;height:24px}.ds-nav-bars i{width:3px;border-radius:2px;background:var(--color-agent-mint, #0aef9a)}.ds-nav-bars i:nth-child(2){height:24px}.ds-nav-bars i:nth-child(1){height:14px}.ds-nav-bars i:nth-child(3){height:18px;background:var(--color-agent-mint-hover, #3df2ae)}.ds-nav-bars i:nth-child(4){height:9px;background:var(--color-agent-mint-deep, #08c57f)}"
+    },
+    {
+      "name": "Turn Bubbles",
+      "kind": "custom",
+      "refersTo": "turn-agent",
+      "description": "A Conversation Turn. The fill states who spoke, and one corner drops to 6px on the speaker’s side. A settled turn is uniform 18px — no tail means no one is waiting on you.",
+      "html": "<div class=\"ds-turns\"><div class=\"ds-turn ds-turn-left\"><div class=\"ds-turn-lab\"><span class=\"ds-lab-in\">Caller</span><span class=\"ds-turn-time\">9:41</span></div><div class=\"ds-bub ds-bub-in\">Is Sam there? It’s about Thursday.</div></div><div class=\"ds-turn ds-turn-left\"><div class=\"ds-turn-lab\"><span class=\"ds-lab-voxi\">Voxi</span><span class=\"ds-turn-time\">9:41</span></div><div class=\"ds-bub ds-bub-voxi\">He’s away until Thursday. Shall I take a message?</div></div><div class=\"ds-turn ds-turn-right\"><div class=\"ds-turn-lab\"><span class=\"ds-lab-in\">You</span><span class=\"ds-turn-time\">10:02</span></div><div class=\"ds-bub ds-bub-you\">Confirm 4pm.</div></div><div class=\"ds-turn ds-turn-left\"><div class=\"ds-turn-lab\"><span class=\"ds-lab-sent\">Sent</span><span class=\"ds-turn-time\">10:02</span></div><div class=\"ds-bub ds-bub-sent\">Confirmed Thursday, 4pm.</div></div></div>",
+      "css": ".ds-turns{box-sizing:border-box;max-width:360px;padding:20px;background:var(--color-board-black, #0b0f0d);border-radius:24px;display:flex;flex-direction:column;gap:20px;font-family:-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif}.ds-turn{display:flex;flex-direction:column;gap:7px}.ds-turn-left{align-items:flex-start}.ds-turn-right{align-items:flex-end}.ds-turn-lab{display:flex;align-items:center;gap:7px;font:700 10.5px/1.3 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;letter-spacing:1.1px;text-transform:uppercase}.ds-lab-in{color:var(--color-text-tertiary, #8a918e)}.ds-lab-voxi{color:var(--color-agent-mint, #0aef9a)}.ds-lab-sent{color:var(--color-finished-lime, #8cdd2c)}.ds-turn-time{font:400 11px/1.3 -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;letter-spacing:0;text-transform:none;color:var(--color-text-faint, #4d5551)}.ds-bub{max-width:88%;padding:13px 16px;font:400 15px/22px -apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif;text-wrap:pretty}.ds-bub-in{border:1px solid var(--color-line-default, #242d29);border-radius:18px 18px 18px 6px;background:var(--color-panel, #131916);color:var(--color-text-primary, #ffffff)}.ds-bub-voxi{border:1px solid rgba(10,239,154,.22);border-radius:18px 18px 18px 6px;background:rgba(10,239,154,.08);color:var(--color-agent-mint-hover, #3df2ae)}.ds-bub-you{border:1px solid var(--color-agent-mint, #0aef9a);border-radius:18px 18px 6px 18px;background:var(--color-agent-mint, #0aef9a);color:var(--color-board-black, #0b0f0d)}.ds-bub-sent{border:1px solid var(--color-finished-lime-line, rgba(140,221,44,.35));border-radius:18px;background:rgba(140,221,44,.07);color:#c6ea8e}"
+    },
+    {
+      "name": "Toggle",
+      "kind": "custom",
+      "refersTo": "toggle-on",
+      "description": "50×30px pill with a 24px knob. On = mint track, Board Black knob. Off track is #2c3733 — a one-off value outside the token set.",
+      "html": "<div class=\"ds-toggle-row\"><button class=\"ds-toggle ds-toggle-on\" role=\"switch\" aria-checked=\"true\" aria-label=\"Take a message\"><span></span></button><button class=\"ds-toggle\" role=\"switch\" aria-checked=\"false\" aria-label=\"Screen unknown numbers\"><span></span></button></div>",
+      "css": ".ds-toggle-row{display:flex;gap:14px;padding:18px;background:var(--color-panel, #131916);border:1px solid var(--color-line-default, #242d29);border-radius:24px}.ds-toggle{width:50px;height:30px;flex:none;box-sizing:border-box;padding:3px;border:none;border-radius:100px;background:#2c3733;display:flex;justify-content:flex-start;cursor:pointer;transition:background .18s ease-in-out}.ds-toggle span{width:24px;height:24px;border-radius:100px;background:var(--color-text-tertiary, #8a918e);transition:background .18s ease-in-out}.ds-toggle-on{background:var(--color-agent-mint, #0aef9a);justify-content:flex-end}.ds-toggle-on span{background:var(--color-board-black, #0b0f0d)}.ds-toggle:focus-visible{outline:2px solid var(--color-text-primary, #ffffff);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Switchboard",
+    "overview": "Voxi is the calm operator working a dark, near-silent board. The room is almost black (#070a09), the board itself barely lighter (#0b0f0d), and the panels you actually touch lift only two more steps out of that darkness. Nothing in this system glows for decoration. When mint lights up, a line is live — Voxi is speaking, acting, or asking you something. The interface is the room, not the operator.\n\nThat metaphor is what keeps the palette honest. A conventional dark UI spends its accent everywhere: on focus rings, on active tabs, on any control that wants to look important. Voxi cannot afford that, because mint is load-bearing product language. #0aef9a is a claim about authorship — Voxi did this, Voxi said this, Voxi needs this from you — and the moment it also means \"this button is the important one\", the claim stops being readable. The discipline is not decorative restraint. It is that one colour is carrying a semantic the copy alone cannot carry.\n\nThe result reads calm rather than sparse. Radii are generous (22–24px on cards, 18px on buttons), gutters are wide (26px on a 402px frame), and blocks separate at 34px, so a screen that holds one task and two buttons feels deliberate instead of empty. Type does the hierarchy work that colour is not allowed to do: a five-rung grey ladder from #ffffff down to #4d5551, and a rule that only one thing per screen is allowed to be 26px or larger. This is a dark-only product with no light-mode fallback, so contrast and the grey ladder are the whole accessibility budget — there is no second theme to rescue a weak pairing.",
+    "keyCharacteristics": [
+      "Dark-only, five surface tones, no shadows inside the app frame",
+      "Mint means authorship, never emphasis; lime means finished, never actionable",
+      "Soft slabs (22–24px radii, roomy padding) carrying hard semantic colour",
+      "Voxi has no avatar and no face — four pulsing bars are its entire body",
+      "One subject per screen; everything else drops to 17px and below",
+      "Type and tone carry hierarchy, because colour is spoken for"
+    ],
+    "rules": [
+      {
+        "name": "The Authorship Rule",
+        "section": "colors",
+        "body": "Mint has exactly two fills and they mean opposite things. Flat mint (#0aef9a background, #0b0f0d text) = the Subscriber does it. Outlined mint (mint text, rgba(10,239,154,.07) fill, rgba(10,239,154,.30–.40) border) = Voxi does it. There is no third mint, and neither one is available for \"this is the important button\"."
+      },
+      {
+        "name": "The Dead Circuit Rule",
+        "section": "colors",
+        "body": "Lime marks a closed line. If an element is tappable, it cannot be lime. A lime badge, label, or stat is a statement that the thing is over."
+      },
+      {
+        "name": "The Grey Ladder Rule",
+        "section": "colors",
+        "body": "Five greys, ranked by how much you are obliged to read them: #ffffff subject → #a9afac body → #8a918e section labels → #6b7370 metadata → #4d5551 keys and dates. Never skip a rung to add emphasis. If something needs to stand out, move it up the type scale, not sideways into colour."
+      },
+      {
+        "name": "The Contrast Floor Rule",
+        "section": "colors",
+        "body": "Two rungs of the ladder do not currently meet WCAG 2.2 AA and must be treated as known debt, not as approved values. #4d5551 measures 2.1–2.6:1 on every surface in the system and fails outright. #6b7370 measures 3.4–4.1:1 — large-text-only, yet the mockup uses it at 13px and 14px. Both need lightening before the web dashboard ships against the AA commitment; everything from #8a918e up passes comfortably (5.1:1 and better), and mint, lime and danger all clear 7:1 on every surface."
+      },
+      {
+        "name": "The Subject Line Rule",
+        "section": "typography",
+        "body": "Exactly one element per screen may be 26px or larger, and it is the thing the screen is about. Everything else lives at 18px and below. A screen with two large headings has two subjects and needs splitting."
+      },
+      {
+        "name": "The Tracking Ladder Rule",
+        "section": "typography",
+        "body": "Tracking follows size, not emphasis. Negative above 26px (-0.8px at 34, -0.6px at 30–32, -0.4px at 26), zero from 11px to 18px, and +1.2px only on the uppercase 11px label. Never letterspace body copy to make it look designed."
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "section": "typography",
+        "body": "Any figure that appears in a column or updates in place — receipt amounts, call counts, durations, dashboard stats — sets font-variant-numeric: tabular-nums. Numbers that jitter as they change read as unreliable, which is the opposite of what this product is selling."
+      },
+      {
+        "name": "The 26/20 Gutter Rule",
+        "section": "layout",
+        "body": "Text meets the screen edge at 26px. Cards meet it at 20px. Pick by what is at the boundary — glyph or container — not by what looks tidier in isolation."
+      },
+      {
+        "name": "The 150px Tail Rule",
+        "section": "layout",
+        "body": "A scrolling list under the bottom nav ends with a 150px spacer, always. The nav’s gradient scrim is a fade, not a backstop, and a list that stops short leaves its final row half-legible."
+      },
+      {
+        "name": "The Flat Room Rule",
+        "section": "elevation",
+        "body": "No box-shadow inside the app frame — not on cards, not on the bottom sheet, not on the nav. If something needs to sit forward, move it a surface step up and change its border. The room is lit evenly; only Voxi glows."
+      },
+      {
+        "name": "The Border-Is-A-Surface Rule",
+        "section": "elevation",
+        "body": "#242d29 is both the raised surface and the default border, and that is not a collision. A border in this system is a 1px sliver of the next surface up. Borders are always exactly 1px — there is no 2px anywhere."
+      },
+      {
+        "name": "The Asymmetric Tail Rule",
+        "section": "shapes",
+        "body": "A turn bubble drops one corner to 6px on its speaker’s side: 18px 18px 18px 6px for an inbound or Voxi turn on the left, 18px 18px 6px 18px for the Subscriber’s turn on the right. A settled turn — something already sent, nothing to answer — is a uniform 18px on all four corners. No tail means no one is waiting on you."
+      },
+      {
+        "name": "The Bigger-Is-Rounder Rule",
+        "section": "shapes",
+        "body": "Radius tracks the element’s size, never its importance. An 8px radius on a large card, or a 24px radius on a chip, reads as a mistake even when nothing else changes."
+      }
+    ],
+    "dos": [
+      "Do treat packages/theme/tokens.json as the only source of truth. Edit it and run pnpm theme; packages/theme/theme.css is generated and must never be hand-edited.",
+      "Do use flat mint for what the Subscriber does and outlined mint for what Voxi does — the fill is the sentence’s subject.",
+      "Do express depth tonally. Move an element up a surface step and change its border; never reach for a shadow.",
+      "Do end every scrolling list under the bottom nav with a 150px spacer.",
+      "Do set font-variant-numeric: tabular-nums on anything numeric that sits in a column or updates in place.",
+      "Do pair colour with a second signal. Voxi-owned cards carry a mint label and a mint border and mint text — the state survives if colour does not land, which the dark-only, colour-semantic combination makes mandatory.",
+      "Do honour prefers-reduced-motion: the orb bars hold at rest height and the glow stops breathing.",
+      "Do give the first row of a grouped list container a transparent divider rather than removing it, so row heights stay identical.",
+      "Do let one subject own each screen. If two things want 26px, they want two screens."
+    ],
+    "donts": [
+      "Don’t use mint for generic emphasis — not focus rings, not active tabs, not links, not \"the important button\". It is a claim about authorship and it stops meaning anything the moment it also means \"look here\".",
+      "Don’t put lime on anything tappable. Lime is a closed line.",
+      "Don’t add a box-shadow inside the app frame. The 0 40px 90px in the source material is the device frame in a design canvas, not a UI token.",
+      "Don’t build a light mode, and don’t drop light-mode component defaults onto the dark canvas — no white cards on #0b0f0d, no borrowed light-theme shadows. Dark-only is a brand commitment, not a default.",
+      "Don’t reach for voicemail metaphors. No tape decks, no play counts, no red unread badges, no \"(3) New Messages\". Voicemail is one possible outcome of one phone Call, not the product.",
+      "Don’t ship #4d5551 or #6b7370 as body or metadata text on the web dashboard without lightening them first — they measure 2.1–2.6:1 and 3.4–4.1:1 respectively and miss WCAG 2.2 AA at the sizes the source material uses them.",
+      "Don’t letterspace body copy. Tracking follows size: negative above 26px, zero from 11–18px, and +1.2px only on the uppercase 11px label.",
+      "Don’t carry the 52px device radius or the 44px hit-target floor to desktop. Both are phone-only; desktop’s target floor is 32px.",
+      "Don’t scale body text up on desktop. Headings grow (34→44, 32→38, 30→34); 15px body and 13px meta stay exactly where they are.",
+      "Don’t give Voxi a face. Four bars are the whole avatar — no illustrated character, no photo, no logotype standing in for the agent."
+    ]
+  }
+}
