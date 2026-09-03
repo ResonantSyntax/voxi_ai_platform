@@ -7,3 +7,22 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
 }
+
+::selection {
+  background: var(--color-mint-chip);
+  color: var(--color-text-primary);
+}
+
+* {
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+
+@keyframes voxi-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes voxi-glow {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.08); }
+}

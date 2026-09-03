@@ -19,6 +19,9 @@
   --color-lime-base: #8cdd2c;
   --color-lime-tint: rgba(140,221,44,.08);
   --color-lime-line: rgba(140,221,44,.35);
+  --color-paper-base: #e8e4d6;
+  --color-paper-ink: #0b0f0d;
+  --color-paper-ink-muted: #5e5a4e;
   --color-text-primary: #ffffff;
   --color-text-secondary: #a9afac;
   --color-text-tertiary: #8a918e;
@@ -79,6 +82,7 @@
   --radius-cardlg: 24px;
   --radius-pill: 100px;
   --radius-device: 52px;
+  --radius-panel: 6px;
   --spacing-1: 4px;
   --spacing-2: 7px;
   --spacing-3: 11px;
