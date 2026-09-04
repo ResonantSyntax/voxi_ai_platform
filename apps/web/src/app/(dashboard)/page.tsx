@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardHeader, SectionLabel } from "@/components/ui/card";
 import { VoxiBars } from "@/components/voxi-bars";
@@ -13,8 +14,9 @@ export default function OverviewPage() {
   const showLive = meetsTier(CURRENT_TIER, "business");
 
   return (
-    <>
-      <PageHeading title="Morning, Tom." side="Wednesday 3 September" />
+    <DashboardPage
+      heading={<PageHeading title="Morning, Tom." side="Wednesday 3 September" sideClassName="text-text-primary" />}
+    >
       <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] grid-rows-[auto_1fr] gap-2.5">
         <div className="row-span-2 flex min-h-0 flex-col rounded-panel bg-paper-base p-6 text-paper-ink">
           <div className="flex items-baseline justify-between">
@@ -94,6 +96,6 @@ export default function OverviewPage() {
           </div>
         </Card>
       </div>
-    </>
+    </DashboardPage>
   );
 }

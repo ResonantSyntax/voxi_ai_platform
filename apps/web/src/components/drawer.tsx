@@ -54,7 +54,7 @@ export function DrawerPanel() {
   return (
     <div
       className={cx(
-        "flex-none overflow-hidden py-8 transition-[width] duration-500 ease-[cubic-bezier(.32,.72,0,1)]",
+        "flex-none overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(.32,.72,0,1)]",
         open ? "w-[440px]" : "w-0"
       )}
       aria-hidden={!open}
@@ -64,7 +64,7 @@ export function DrawerPanel() {
         aria-modal="true"
         aria-label={content?.title}
         className={cx(
-          "h-full w-[440px] pr-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(.32,.72,0,1)]",
+          "h-full w-[440px] transition-[opacity,transform] duration-500 ease-[cubic-bezier(.32,.72,0,1)]",
           open ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"
         )}
       >

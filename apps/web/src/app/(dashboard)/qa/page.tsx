@@ -1,3 +1,4 @@
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, SectionLabel } from "@/components/ui/card";
 import { FactList } from "@/components/ui/fact-row";
@@ -8,8 +9,7 @@ import { businessFacts, callerFaqs } from "@/lib/mock-data";
 // "Knowledge" stays reserved for Business document uploads, not yet built.
 export default function QAPage() {
   return (
-    <>
-      <PageHeading title="Q&A" side="Last taught Monday" />
+    <DashboardPage heading={<PageHeading title="Q&A" side="Last taught Monday" />}>
       <div className="grid min-h-0 flex-1 grid-rows-[auto_1fr] gap-2.5">
         <div className="flex items-center justify-between gap-8 rounded-panel bg-paper-base p-7 text-paper-ink">
           <div className="flex flex-col gap-1.5">
@@ -47,6 +47,6 @@ export default function QAPage() {
           </Card>
         </div>
       </div>
-    </>
+    </DashboardPage>
   );
 }

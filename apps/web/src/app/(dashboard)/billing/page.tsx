@@ -1,11 +1,11 @@
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, SectionLabel } from "@/components/ui/card";
 import { plan, usage, invoices } from "@/lib/mock-data";
 
 export default function BillingPage() {
   return (
-    <>
-      <PageHeading title="Billing" side="Sole trader plan" />
+    <DashboardPage heading={<PageHeading title="Billing" side="Sole trader plan" />}>
       <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-[auto_1fr] gap-2.5">
         <div className="flex flex-col gap-5 rounded-panel bg-mint-base p-8 text-paper-ink">
           <div className="text-label uppercase text-mint-ink-muted">Your plan</div>
@@ -45,6 +45,6 @@ export default function BillingPage() {
           </div>
         </Card>
       </div>
-    </>
+    </DashboardPage>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { useDrawer } from "@/components/drawer";
 import { VoxiBars } from "@/components/voxi-bars";
@@ -40,8 +41,7 @@ export default function TasksPage() {
   }
 
   return (
-    <>
-      <PageHeading title="Tasks" side={`${needsYouCount} need you`} />
+    <DashboardPage heading={<PageHeading title="Tasks" side={`${needsYouCount} need you`} />}>
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-2.5">
         {LANES.map((lane) => {
           const laneTasks = tasks.filter((t) => t.lane === lane.id);
@@ -154,6 +154,6 @@ export default function TasksPage() {
           );
         })}
       </div>
-    </>
+    </DashboardPage>
   );
 }

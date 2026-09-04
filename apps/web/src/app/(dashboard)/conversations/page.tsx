@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardHeader, SectionLabel } from "@/components/ui/card";
 import { VoxiBars } from "@/components/voxi-bars";
@@ -13,8 +14,7 @@ export default function ConversationsPage() {
   const showLive = meetsTier(CURRENT_TIER, "business");
 
   return (
-    <>
-      <PageHeading title="Conversations" side="Voxi has answered 9 today" />
+    <DashboardPage heading={<PageHeading title="Conversations" side="Voxi has answered 9 today" />}>
       <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] grid-rows-2 gap-2.5">
         {showLive ? (
           <div className="row-span-2 flex min-h-0 flex-col rounded-panel bg-mint-base p-8 text-paper-ink">
@@ -107,6 +107,6 @@ export default function ConversationsPage() {
           </div>
         </Card>
       </div>
-    </>
+    </DashboardPage>
   );
 }

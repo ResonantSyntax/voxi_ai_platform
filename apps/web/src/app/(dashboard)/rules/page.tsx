@@ -1,3 +1,4 @@
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, SectionLabel } from "@/components/ui/card";
 import { rules } from "@/lib/mock-data";
@@ -7,8 +8,7 @@ import { rules } from "@/lib/mock-data";
 // a Rule). Cannot control whether the Subscriber's phone rings (ADR-0001).
 export default function RulesPage() {
   return (
-    <>
-      <PageHeading title="Rules" side={`${rules.length} active`} />
+    <DashboardPage heading={<PageHeading title="Rules" side={`${rules.length} active`} />}>
       <div className="flex min-h-0 flex-1 flex-col gap-2.5">
         <Card className="min-h-0">
           <div className="flex items-baseline justify-between">
@@ -27,6 +27,6 @@ export default function RulesPage() {
           </div>
         </Card>
       </div>
-    </>
+    </DashboardPage>
   );
 }

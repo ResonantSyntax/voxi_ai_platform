@@ -1,5 +1,6 @@
 "use client";
 
+import { DashboardPage } from "@/components/dashboard-page";
 import { PageHeading } from "@/components/page-heading";
 import { Card, SectionLabel } from "@/components/ui/card";
 import { useDrawer } from "@/components/drawer";
@@ -9,8 +10,7 @@ export default function SettingsPage() {
   const { open } = useDrawer();
 
   return (
-    <>
-      <PageHeading title="Settings" side="tom@ellisgas.co.uk" />
+    <DashboardPage heading={<PageHeading title="Settings" side="tom@ellisgas.co.uk" />}>
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-2.5 overflow-auto">
         {settingsGroups.map((g) => (
           <Card key={g.title} className="min-h-0">
@@ -40,6 +40,6 @@ export default function SettingsPage() {
           </Card>
         ))}
       </div>
-    </>
+    </DashboardPage>
   );
 }

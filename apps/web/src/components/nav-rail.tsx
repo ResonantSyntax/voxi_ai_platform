@@ -19,7 +19,10 @@ export function NavRail() {
 
   return (
     <nav className="flex w-[232px] flex-none flex-col bg-surface-bg px-6 py-8">
-      <Link href="/" className="flex items-center gap-2.5 text-lg font-bold tracking-[-0.4px] text-text-primary">
+      <Link
+        href="/"
+        className="flex items-center gap-2.5 text-lg font-bold uppercase tracking-[-0.4px] text-text-primary"
+      >
         <span className="h-2.5 w-2.5 rounded-pill bg-mint-base" aria-hidden />
         Voxi
       </Link>
