@@ -7,7 +7,7 @@ import { FactList } from "@/components/ui/fact-row";
 
 export type DrawerContent = {
   tag: string;
-  tone?: "mint" | "neutral";
+  tone?: "mint" | "lime" | "neutral";
   title: string;
   facts?: Fact[];
   options?: DrawerOption[];
@@ -30,7 +30,11 @@ export function useDrawer() {
 export function DrawerProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<DrawerContent | null>(null);
   const close = useCallback(() => setContent(null), []);
-  const open = useCallback((c: DrawerContent) => setContent(c), []);
+  // A second click on the same card closes it instead of re-opening it —
+  // tag + title is a stable enough identity for every current call site.
+  const open = useCallback((c: DrawerContent) => {
+    setContent((prev) => (prev && prev.tag === c.tag && prev.title === c.title ? null : c));
+  }, []);
 
   useEffect(() => {
     if (!content) return;
@@ -69,7 +73,11 @@ export function DrawerPanel() {
             <div
               className={cx(
                 "text-label uppercase",
-                content?.tone === "mint" ? "text-mint-base" : "text-text-tertiary"
+                content?.tone === "mint"
+                  ? "text-mint-base"
+                  : content?.tone === "lime"
+                    ? "text-lime-base"
+                    : "text-text-tertiary"
               )}
             >
               {content?.tag}

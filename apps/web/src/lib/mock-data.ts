@@ -14,8 +14,18 @@ export type Task = {
   options: DrawerOption[];
 };
 
-export type OnItTask = { id: string; title: string; status: string };
-export type MineTask = { id: string; title: string; handoffFacts?: Fact[]; handoffOptions?: DrawerOption[] };
+// The Tasks board: three lanes a card can be dragged between. "done" is a
+// real resolved-task history, not the earlier "yours to do" grouping — an
+// unresolved task belongs in needs_you regardless of who's expected to act.
+export type KanbanLane = "needs_you" | "voxi" | "done";
+export type KanbanTask = {
+  id: string;
+  title: string;
+  meta: string;
+  lane: KanbanLane;
+  facts?: Fact[];
+  options?: DrawerOption[];
+};
 
 export type InputRequest = {
   id: string;
@@ -78,37 +88,61 @@ export const openTasks: Task[] = [
   },
 ];
 
-export const onItTasks: OnItTask[] = [
-  { id: "o1", title: "Chasing Howden for the parts", status: "Called twice · trying again at 2pm" },
-  { id: "o2", title: "Moving Northgate to Friday", status: "On the call now" },
-];
-
-export const mineTasks: MineTask[] = [
+export const initialKanbanTasks: KanbanTask[] = [
+  ...openTasks.map((t) => ({
+    id: t.id,
+    title: t.title,
+    meta: t.who,
+    lane: "needs_you" as const,
+    facts: t.facts,
+    options: t.options,
+  })),
   {
     id: "m1",
     title: "Invoice 2481 — Ashcroft",
-    handoffFacts: [
+    meta: "£340, due Friday",
+    lane: "needs_you",
+    facts: [
       { k: "Amount", v: "£340, due Friday" },
       { k: "Contact", v: "Accounts, Ashcroft Ltd" },
     ],
-    handoffOptions: [
+    options: [
       { label: "Voxi chases by phone Friday", primary: true },
       { label: "Voxi sends a reminder text" },
+      { label: "I'll handle it myself", self: true },
     ],
   },
-  { id: "m2", title: "Chase HMRC on the VAT letter" },
+  {
+    id: "m2",
+    title: "Chase HMRC on the VAT letter",
+    meta: "Letter received Monday",
+    lane: "needs_you",
+    facts: [{ k: "From", v: "HMRC" }],
+    options: [
+      { label: "Voxi drafts a reply", primary: true },
+      { label: "I'll handle it myself", self: true },
+    ],
+  },
   {
     id: "m3",
     title: "Renew van insurance",
-    handoffFacts: [
+    meta: "Expires 30 September",
+    lane: "needs_you",
+    facts: [
       { k: "Expires", v: "30 September" },
       { k: "Insurer", v: "Admiral, 0333 220 2000" },
     ],
-    handoffOptions: [
+    options: [
       { label: "Voxi gets three quotes", primary: true },
       { label: "Voxi calls Admiral to renew" },
+      { label: "I'll handle it myself", self: true },
     ],
   },
+  { id: "o1", title: "Chasing Howden for the parts", meta: "Called twice · trying again at 2pm", lane: "voxi" },
+  { id: "o2", title: "Moving Northgate to Friday", meta: "On the call now", lane: "voxi" },
+  { id: "d1", title: "Sent the boiler service quote", meta: "Mrs Patel · yesterday", lane: "done" },
+  { id: "d2", title: "Paid the Howden Trade invoice", meta: "Monday", lane: "done" },
+  { id: "d3", title: "Booked the annual van MOT", meta: "Last week", lane: "done" },
 ];
 
 // "Needs a reply" — unresolved Input Requests. A Task is something the

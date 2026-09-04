@@ -107,3 +107,15 @@ five already exist in the `Ghost_ai` team. See `docs/agents/triage-labels.md`.
 
 Single-context repo: one `CONTEXT.md` and one `docs/adr/` at the root. There is
 no `CONTEXT-MAP.md`. See `docs/agents/domain.md`.
+
+## Learned User Preferences
+
+- Keep conversational voice and chat on LiveKit across platforms; do not use on-device QVAC for the voice/chat loop
+- Scope on-device QVAC to OCR, Knowledge ingest, local SQLite/vector, and related background AI jobs; keep any on-device LLM job-shaped (ingest/classify/tag), not a second chat UI
+
+## Learned Workspace Facts
+
+- `apps/mobile` is Expo + React Native; `apps/web` is Next.js; neither is a production voice client today
+- Telephony voice is cloud LiveKit Agents (Deepgram → Claude → Cartesia per ADR-0002); LiveKit Agents run on the agent host and cannot execute QVAC models on the subscriber phone
+- QVAC (`tetherto/qvac` / `@qvac/sdk`) fits Expo for on-device OCR, embeddings, and local RAG; its voice-assistant docs are desktop-only; no browser/WASM host
+- Knowledge stays backend source of truth with a synced on-device index direction; device OCR/captures feed Knowledge, not Memory

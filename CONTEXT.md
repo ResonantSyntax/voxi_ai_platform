@@ -269,9 +269,13 @@ Exact Rule trigger behaviour is still being designed.
 
 Do not invent trigger combinations or limitations unless they are already documented elsewhere.
 
+A Rule may be **proposed** from Knowledge (for example from a captured document). A
+proposal is a Draft until the Subscriber accepts it. Do not treat unaccepted
+proposals as active Rules.
+
 ---
 
-## Q&amp;A
+## Q&A
 
 Subscriber-authored question-and-answer pairs.
 
@@ -288,11 +292,59 @@ Treat authored answers as deliberate source material.
 
 Do not assume Voxi should invent unsupported answers beyond them.
 
+A Q&A pair may be **proposed** from Knowledge. A proposal is a Draft until the
+Subscriber accepts it. Do not treat unaccepted proposals as live Q&A.
+
+---
+
+## Draft
+
+A proposed change to Subscriber-authored behaviour or Knowledge metadata that is
+not yet accepted.
+
+Applies especially to proposed Rules and Q&A derived from Knowledge.
+
+Until the Subscriber accepts it:
+
+```text
+it must not affect how Voxi handles Conversations
+
+```
+
+Prefer:
+
+```text
+Draft
+
+```
+
+Avoid:
+
+```text
+self-learning
+auto-Rule
+learned memory
+local Voxi decided
+
+```
+
 ---
 
 ## Knowledge
 
 Subscriber-uploaded documents that Voxi can retrieve from when answering.
+
+Upload includes documents the Subscriber captures on their device (for example
+from the camera) once those captures are **confirmed** and stored as Knowledge.
+
+Pending captures that the Subscriber has not confirmed are not Knowledge yet.
+
+The backend remains the source of truth. A device may keep a synced local index
+of Knowledge for retrieval (including offline). That index is still Knowledge,
+not a separate product concept and not Memory.
+
+Knowledge retrieval and document review on a device are **not** a Conversation
+channel. They do not replace Phone Call, In-app Voice, or Text Chat.
 
 Current intended tier:
 
@@ -302,6 +354,9 @@ Business
 ```
 
 Avoid using `Knowledge` to mean generic runtime context.
+
+Do not use `Memory` for document or image capture that is meant to be retrieved
+as Knowledge.
 
 ---
 
@@ -313,11 +368,20 @@ Memory does not exist yet.
 
 Do not treat Conversation History as Memory.
 
+Do not treat Knowledge, OCR output, local indexes, Drafts, or automatic
+extraction from documents or Transcripts as Memory.
+
 Difference:
 
 ```text
 Conversation History
 = what happened
+
+Knowledge
+= documents Voxi can retrieve from
+
+Draft
+= proposed authoring, not yet accepted
 
 Memory
 = selected facts deliberately carried forward
@@ -484,9 +548,31 @@ must remain channel-neutral.
 
 Telephony-specific information should appear only where relevant to a phone Call.
 
+Knowledge library, capture confirm, and Draft review are not Conversation
+surfaces. Do not present them as chatting with a separate on-device assistant.
+
 Do not expose internal architecture terminology unnecessarily.
 
 User-facing language should remain plain and product-oriented.
+
+Prefer:
+
+```text
+keeps your Knowledge searchable on this device
+learns from what you add
+
+```
+
+only when describing Knowledge capture/index behaviour.
+
+Avoid:
+
+```text
+self-learning Voxi
+local Voxi brain
+on-device assistant chat
+
+```
 
 ---
 
@@ -515,12 +601,16 @@ In-app Voice
 Text Chat
 Business receptionist capabilities
 Knowledge
+Knowledge capture and synced on-device index
+Drafts from Knowledge (Rules, Q&A)
 Memory
 additional integrations
 
 ```
 
 Do not treat deferred features as implemented product requirements.
+
+Do not invent Memory from Knowledge capture or Conversation enrichment.
 
 ---
 
