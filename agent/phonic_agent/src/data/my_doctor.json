@@ -1,0 +1,72 @@
+{
+  "plan": {
+    "name": "MY DOCTOR – Life Living Plan",
+    "price": "R122 per month",
+    "price_note": "For inclusive benefits only. Benefits and pricing are subject to change without notice.",
+    "provider": "Medicall Healthcare, a product of Xperia Financial Services (PTY) Ltd (FSCA FSP No. 45551)",
+    "registration_waiting_period": "A 30-day registration period applies before benefits can be accessed.",
+    "access_note": "Every MY DOCTOR benefit is only accessible by calling the qualified nurse service.",
+    "target_audience": "All South African citizens wanting affordable, accessible private healthcare, in all 11 official languages, 24 hours a day, 365 days a year."
+  },
+  "member_types": {
+    "new": "No existing Medicall Healthcare cover (or covered by another medical scheme). Pays the GP and pharmacy directly (own account) for the Virtual Doctor and Network GP benefits.",
+    "existing": "Already a Medicall Healthcare member. The Virtual Doctor and Network GP benefits are fully inclusive, including formulary medication."
+  },
+  "benefits": [
+    {
+      "name": "24/7 Telephonic Medical Advisory Service",
+      "inclusive_for": ["new", "existing"],
+      "description": "Qualified nurse assessment and treatment or referral advice, in all 11 official South African languages, 24 hours a day, every day of the year."
+    },
+    {
+      "name": "COVID Medical Advisory Services",
+      "inclusive_for": ["new", "existing"],
+      "description": "24-hour telephonic and WhatsApp COVID information, vaccine program guidance, and trauma or stress debriefing counselling."
+    },
+    {
+      "name": "Nurse Assistance Benefit",
+      "inclusive_for": ["new", "existing"],
+      "description": "Consultation without diagnosis, following protocol, plus home-care guidance and advice on warning signs of deterioration."
+    },
+    {
+      "name": "Over-The-Counter Medication Benefit",
+      "inclusive_for": ["new", "existing"],
+      "description": "Nurse-approved over-the-counter medication via Mediscor. The coupon is valid for 3 days. Up to 150 rand per pre-approval per month, capped at 1000 rand per year per family."
+    },
+    {
+      "name": "Virtual Doctor Consultation Benefit",
+      "inclusive_for": ["existing"],
+      "own_account_for": ["new"],
+      "description": "Existing members: fully inclusive, including formulary medication. New members: pay the GP and pharmacy directly."
+    },
+    {
+      "name": "Referral to a Network GP Benefit",
+      "inclusive_for": ["existing"],
+      "own_account_for": ["new"],
+      "description": "Existing members: inclusive. New members: own account."
+    },
+    {
+      "name": "24/7 Land and Air Emergency Evacuation Benefit",
+      "inclusive_for": ["new", "existing"],
+      "description": "Accident assessment, ambulance, medical response, or helicopter dispatch, pre-arrival first aid advice, inter-hospital transfer, and repatriation if hospitalized more than 100 kilometers from home, paid up to the elected benefit limit."
+    },
+    {
+      "name": "Trauma Counselling and Medical Advisory Benefit",
+      "inclusive_for": ["new", "existing"],
+      "description": "Emergency first aid advice, poison information, and symptom assessment and referral, leading to ambulance escalation, home-care advice, a GP recommendation, or an emergency room referral."
+    }
+  ],
+  "faq": [
+    { "question": "How much does it cost?", "answer": "R122 per month." },
+    { "question": "When can I start using my benefits?", "answer": "There's a 30-day registration period before benefits become accessible." },
+    { "question": "How do I access my benefits?", "answer": "Every benefit is accessed by calling the qualified nurse service. For general queries, call 010 443 8777, or WhatsApp 063 986 5431." },
+    { "question": "What's the difference between a new and an existing member?", "answer": "Existing Medicall Healthcare members get the Virtual Doctor and Network GP benefits fully inclusive. New members pay the GP and pharmacy directly for those two benefits; every other benefit is inclusive either way." }
+  ],
+  "contact": {
+    "company": "Medicall Healthcare",
+    "general_queries_phone": "010 443 8777",
+    "whatsapp": "063 986 5431",
+    "website": "medicallhealth.co.za",
+    "email": "info@medicallhealth.co.za"
+  }
+}

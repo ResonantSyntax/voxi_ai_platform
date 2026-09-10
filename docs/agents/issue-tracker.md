@@ -62,6 +62,28 @@ existing `wayfinder:*` labels carry the type.
 - **Resolve**: `save_comment` with the answer, move the issue to a completed state, then append a
   context pointer (gist + issue URL) to the map issue's Decisions-so-far via `save_issue`.
 
+## ADR → Spec → Tickets pipeline
+
+This is the required path from an architecture decision to agent-buildable work. Follow it in
+order — never create tickets straight from an ADR, and never invent a spec that isn't backed by
+an ADR in `docs/adr/`.
+
+1. **Grill with docs** — produces an ADR in `docs/adr/000X-*.md`. Git only, no Linear issue at
+   this stage.
+2. **ADR → spec** — create exactly one Linear parent issue per ADR (or one shared parent for a
+   tightly coupled pair, e.g. ADR-0005 + ADR-0006). Title it `Spec: ADR-000X — <decision>`, put
+   the ADR's decision + consequences in the description, link back to the `docs/adr/` file, and
+   label it `wayfinder:map` — the same label the workspace already uses for master specs
+   (see Mathuba's GHO-176, EVRA's GHO-7). This is the only correct meaning of "spec" here; Linear
+   has no separate Spec object for agents to use.
+3. **Spec → tickets** — break the parent down into sub-issues (`parentId` set to the spec issue),
+   scoped small enough for one agentic coding session. Use Linear's `blocks`/`blocked-by`
+   relations to sequence them, not prose. A spec issue with zero children is not done — it's a
+   spec waiting to be broken down, not a stopping point.
+
+A ticket that implements an ADR's consequence but isn't parented under that ADR's spec issue is a
+process gap — reparent it, don't just cite the ADR in the description.
+
 ## PRs as a request surface
 
 **Off.** Open pull requests are not part of the triage queue. Flip this section to "on" if you want
