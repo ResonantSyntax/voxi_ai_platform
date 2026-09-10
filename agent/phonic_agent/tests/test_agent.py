@@ -1,6 +1,13 @@
 import json
 
-from agent import KNOWLEDGE_PATH, append_lead, load_knowledge
+from agent import (
+    KNOWLEDGE_PATH,
+    Userdata,
+    append_lead,
+    load_knowledge,
+    normalize_phone_for_whatsapp,
+    save_lead_snapshot,
+)
 
 
 def test_load_knowledge_has_expected_shape() -> None:
@@ -29,6 +36,35 @@ def test_append_lead_writes_one_json_line(tmp_path, monkeypatch) -> None:
     assert len(lines) == 2
     assert json.loads(lines[0])["name"] == "Jane Doe"
     assert json.loads(lines[1])["name"] == "John Smith"
+
+
+def test_save_lead_snapshot_reflects_partial_progress(tmp_path, monkeypatch) -> None:
+    leads_path = tmp_path / "leads.jsonl"
+    monkeypatch.setattr("agent.LEADS_PATH", leads_path)
+
+    userdata = Userdata(knowledge={})
+    save_lead_snapshot(userdata)  # nothing collected yet
+
+    userdata.first_name, userdata.last_name = "Jane", "Doe"
+    save_lead_snapshot(userdata)  # name only
+
+    userdata.phone_number = "27662117829"
+    save_lead_snapshot(userdata)  # name + phone, if the call dropped here we'd keep it
+
+    lines = [json.loads(line) for line in leads_path.read_text().splitlines()]
+    assert len(lines) == 3
+    assert lines[0]["name"] is None
+    assert lines[1]["name"] == "Jane Doe"
+    assert lines[1]["phone_number"] is None
+    assert lines[2]["phone_number"] == "27662117829"
+
+
+def test_normalize_phone_for_whatsapp() -> None:
+    expected = "27662117829"
+    assert normalize_phone_for_whatsapp("0662 117 829") == expected
+    assert normalize_phone_for_whatsapp("+27662117829") == expected
+    assert normalize_phone_for_whatsapp("27662117829") == expected
+    assert normalize_phone_for_whatsapp("066-211-7829") == expected
 
 
 # Conversational behavior (the pitch, member-type qualification, FAQ answers, and the

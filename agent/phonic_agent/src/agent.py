@@ -1,30 +1,24 @@
 import json
 import logging
 import os
+import re
 import textwrap
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
+import aiohttp
 from dotenv import load_dotenv
 from livekit.agents import (
     Agent,
     AgentServer,
     AgentSession,
-    ChatContext,
     JobContext,
     RunContext,
     cli,
     function_tool,
     room_io,
-)
-from livekit.agents.beta.workflows import (
-    GetEmailTask,
-    GetNameTask,
-    GetPhoneNumberTask,
-    TaskCompletedEvent,
-    TaskGroup,
 )
 from livekit.plugins import ai_coustics, phonic
 
@@ -39,6 +33,54 @@ load_dotenv(".env.local")
 _ROOT = Path(__file__).resolve().parent
 KNOWLEDGE_PATH = _ROOT / "data" / "my_doctor.json"
 LEADS_PATH = _ROOT.parent / "leads.jsonl"
+
+WA_SEND_URL = (
+    os.environ.get("WA_BASE_URL", "https://whatsapp.evra-ai.com").rstrip("/") + "/send"
+)
+WA_FROM_NUMBER = os.environ.get("WA_PHONE_NUMBER_ID", "1162633403610703")
+WA_TEMPLATE = os.environ.get("WA_TEMPLATE", "roxy_avatar_tile_v1")
+WA_MEDIA_ID = os.environ.get("WA_MEDIA_ID", "1328758235800235")
+WA_DEFAULT_COUNTRY_CODE = "27"  # South Africa
+
+
+def normalize_phone_for_whatsapp(
+    phone: str, country_code: str = WA_DEFAULT_COUNTRY_CODE
+) -> str:
+    """WhatsApp wants digits only, country code, no leading 0 or +
+    (e.g. "0662117829" -> "27662117829"). GetPhoneNumberTask's output isn't
+    guaranteed to already be in that shape."""
+    digits = re.sub(r"\D", "", phone)
+    if digits.startswith("0"):
+        digits = country_code + digits[1:]
+    elif not digits.startswith(country_code):
+        digits = country_code + digits
+    return digits
+
+
+async def send_whatsapp_template(to_phone: str) -> None:
+    token = os.environ.get("WA_WEBHOOK_TOKEN")
+    if not token:
+        raise RuntimeError("WA_WEBHOOK_TOKEN is not set")
+
+    async with (
+        aiohttp.ClientSession() as session,
+        session.post(
+            WA_SEND_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "from": WA_FROM_NUMBER,
+                "to": normalize_phone_for_whatsapp(to_phone),
+                "message": {
+                    "type": "template",
+                    "template": WA_TEMPLATE,
+                    "language": "en",
+                    "media_id": WA_MEDIA_ID,
+                    "media_type": "image",
+                },
+            },
+        ) as resp,
+    ):
+        resp.raise_for_status()
 
 
 def load_knowledge() -> dict:
@@ -55,13 +97,34 @@ def append_lead(lead: dict) -> None:
 @dataclass
 class Userdata:
     member_type: Literal["new", "existing"] | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    email_address: str | None = None
     knowledge: dict = field(default_factory=load_knowledge)
 
 
+def save_lead_snapshot(userdata: Userdata) -> None:
+    """Append the current state of the lead. Called after each field is recorded
+    (not just once at the end) so a call dropped mid-collection still leaves
+    whatever was captured on disk — the last line per call has the fullest data."""
+    name = f"{userdata.first_name or ''} {userdata.last_name or ''}".strip()
+    lead = {
+        "collected_at": datetime.now(UTC).isoformat(),
+        "name": name or None,
+        "phone_number": userdata.phone_number,
+        "email_address": userdata.email_address,
+        "member_type": userdata.member_type,
+    }
+    append_lead(lead)
+
+
 def build_llm() -> phonic.realtime.RealtimeModel:
-    """The Phonic realtime model, shared at the session level so it persists across
-    the handoff to ContactCollectionAgent (a realtime model's provider session can't
-    move to a different model once an agent is active — see agents-handoffs docs)."""
+    """The Phonic realtime model, set at the session level. Phonic doesn't support
+    updating tool definitions mid-session ("update_tools called after config was
+    already sent"), so there's deliberately only ever one Agent (SalesAgent) with
+    one fixed tool set for the whole call — no handoffs, no Tasks/TaskGroups, whose
+    value relies on swapping in a different tool set per step."""
     knowledge = load_knowledge()
     plan = knowledge["plan"]
     return phonic.realtime.RealtimeModel(
@@ -100,6 +163,24 @@ class SalesAgent(Agent):
                 - Spell out numbers, phone numbers, or email addresses.
                 - Avoid acronyms and words with unclear pronunciation.
 
+                # Delivery
+
+                You have no markup or emotion tags — energy comes only from how you
+                phrase things, so watch for these flattening patterns:
+
+                - Don't string together several same-length, same-structure sentences
+                  in a row — that's what reads as a monotone recitation. Mix a short
+                  punchy sentence with a longer one.
+                - When covering multiple points (the pitch, or a longer answer), don't
+                  dump them as one unbroken paragraph. Land one point, then pivot with
+                  a natural beat — "And here's the one people love —", "Honestly, the
+                  big one for most people is —" — before the next, rather than reciting
+                  a flat list.
+                - Vary your openers. Don't start every reply the same way (e.g. always
+                  "So," or always "Great question").
+                - Sound like you mean it, especially on the strongest points — a little
+                  genuine enthusiasm goes further than more words.
+
                 # Call flow
 
                 1. Pitch: after your opening greeting, sell the plan — don't just list
@@ -111,9 +192,10 @@ class SalesAgent(Agent):
                    languages." Cover 3-4 of the strongest points this way: the always-on
                    nurse line, the land and air emergency evacuation, and
                    over-the-counter medication support. Close the pitch by framing the
-                   price as a bargain for that peace of mind — R122 a month. Keep
-                   sentences short for voice, but this is a pitch, not a disclaimer —
-                   sound like you believe it's worth having.
+                   price as a bargain for that peace of mind — R122 a month. Follow the
+                   Delivery guidance above closely here — this is the part most likely
+                   to sound like a flat recitation if you're not deliberate about
+                   varying pace and rhythm between points.
                 2. Right after the pitch, before answering detailed questions, ask whether
                    the caller already has other Medicall Healthcare cover. Call
                    `record_member_type` with their answer ("new" if they have no existing
@@ -127,10 +209,25 @@ class SalesAgent(Agent):
                    why it matters for the caller. Tailor benefit answers to the caller's
                    member type once you know it.
                 4. Before the call ends — regardless of how interested the caller sounds —
-                   call `collect_contact_info` once to capture their name, phone number,
-                   and email. Do this near the natural end of the conversation, not before
-                   the pitch and Q&A are done. If they decline, don't call it again or
-                   push further.
+                   collect their name, phone number, and email, one at a time, near the
+                   natural end of the conversation (not before the pitch and Q&A are
+                   done):
+                   - Ask for their first and last name. Read it back to confirm, then
+                     call `record_name`.
+                   - Ask for the best phone number to reach them. Read the digits back
+                     grouped (not as one long number) to confirm, then call
+                     `record_phone`.
+                   - Ask for their email address. Read it back to confirm — spell out
+                     unclear parts if needed — then call `record_email`.
+                   For each field: if the caller is reluctant, ask once more; if they
+                   still decline, acknowledge politely and move on to the next field
+                   without that one. Don't loop back or re-ask a field once you've
+                   moved past it.
+                5. Once you have a phone number (whether or not you got the name or
+                   email), ask if they'd like more info about the plan sent to them on
+                   WhatsApp. If they say yes, call `send_whatsapp_info`. If they say no,
+                   don't ask again. Either way, say a brief goodbye — don't offer to
+                   keep helping beyond this, this is the end of the call.
 
                 Never mention tool names, JSON, or internal reasoning to the caller.
                 For anything outside the plan's stated benefits, pricing, or eligibility,
@@ -160,127 +257,44 @@ class SalesAgent(Agent):
         return f"Recorded caller as a {member_type} member."
 
     @function_tool()
-    async def collect_contact_info(self, context: RunContext) -> Agent:
-        """Wrap up the call by collecting the caller's name, phone number, and email
-        address for follow-up. Call this once, near the end of the call. If the
-        caller already declined earlier, don't call this again.
+    async def record_name(
+        self, context: RunContext, first_name: str, last_name: str
+    ) -> str:
+        """Record the caller's first and last name, once confirmed."""
+        context.session.userdata.first_name = first_name
+        context.session.userdata.last_name = last_name
+        save_lead_snapshot(context.session.userdata)
+        return "Name recorded."
+
+    @function_tool()
+    async def record_phone(self, context: RunContext, phone_number: str) -> str:
+        """Record the caller's phone number, once confirmed."""
+        context.session.userdata.phone_number = phone_number
+        save_lead_snapshot(context.session.userdata)
+        return "Phone number recorded."
+
+    @function_tool()
+    async def record_email(self, context: RunContext, email_address: str) -> str:
+        """Record the caller's email address, once confirmed."""
+        context.session.userdata.email_address = email_address
+        save_lead_snapshot(context.session.userdata)
+        return "Email address recorded."
+
+    @function_tool()
+    async def send_whatsapp_info(self, context: RunContext) -> str:
+        """Send the caller a WhatsApp message with more info about the plan. Only
+        call this if the caller has explicitly agreed to receive it, and only after
+        their phone number has been recorded.
         """
-        return ContactCollectionAgent(
-            chat_ctx=self.chat_ctx.copy(exclude_instructions=True)
-        )
-
-
-class ContactCollectionAgent(Agent):
-    """Handoff target for the end-of-call lead capture. A TaskGroup can only be
-    awaited from on_enter/on_exit or a tool body, and Phonic's realtime model can't
-    resume a function call after a task runs inside one — so this runs from on_enter
-    of a dedicated agent instead of directly inside SalesAgent.collect_contact_info.
-    """
-
-    def __init__(self, chat_ctx: ChatContext) -> None:
-        super().__init__(
-            instructions="You are wrapping up a sales call by collecting the caller's contact details.",
-            chat_ctx=chat_ctx,
-        )
-
-    async def on_enter(self) -> None:
-        # Collected via on_task_completed (not just the final task_results) so a
-        # dropped call mid-collection — the caller hangs up, or here in testing the
-        # console session ends — still saves whatever fields were captured, instead
-        # of losing a name/phone the caller already gave because the last field
-        # never finished.
-        collected: dict = {}
-
-        async def _record_completed(event: TaskCompletedEvent) -> None:
-            collected[event.task_id] = event.result
-
-        chat_ctx = self.chat_ctx.copy(exclude_instructions=True)
-        task_group = TaskGroup(chat_ctx=chat_ctx, on_task_completed=_record_completed)
-        task_group.add(
-            lambda: GetNameTask(
-                first_name=True,
-                last_name=True,
-                chat_ctx=chat_ctx,
-                extra_instructions=(
-                    "If the caller is reluctant, ask once more. If they still decline, "
-                    "acknowledge politely and move on without their name."
-                ),
-            ),
-            id="get_name",
-            description="Collects the caller's first and last name",
-        )
-        task_group.add(
-            lambda: GetPhoneNumberTask(
-                chat_ctx=chat_ctx,
-                extra_instructions=(
-                    "If the caller is reluctant, ask once more. If they still decline, "
-                    "acknowledge politely and move on without their number."
-                ),
-            ),
-            id="get_phone",
-            description="Collects the caller's phone number",
-        )
-        task_group.add(
-            lambda: GetEmailTask(
-                chat_ctx=chat_ctx,
-                extra_instructions=(
-                    "If the caller is reluctant, ask once more before falling back to "
-                    "decline_email_capture."
-                ),
-            ),
-            id="get_email",
-            description="Collects the caller's email address",
-        )
-
-        interrupted = False
+        phone = context.session.userdata.phone_number
+        if not phone:
+            return "No phone number on file yet — can't send WhatsApp info."
         try:
-            await task_group
+            await send_whatsapp_template(phone)
         except Exception:
-            logger.warning(
-                "collect_contact_info: call ended before data collection finished; "
-                "saving whatever was captured (%s)",
-                list(collected),
-            )
-            interrupted = True
-
-        name_result = collected.get("get_name")
-        phone_result = collected.get("get_phone")
-        email_result = collected.get("get_email")
-
-        lead = {
-            "collected_at": datetime.now(UTC).isoformat(),
-            "name": (
-                f"{name_result.first_name or ''} {name_result.last_name or ''}".strip()
-                if name_result
-                else None
-            ),
-            "phone_number": getattr(phone_result, "phone_number", None),
-            "email_address": getattr(email_result, "email_address", None),
-            "member_type": self.session.userdata.member_type,
-        }
-        if any([lead["name"], lead["phone_number"], lead["email_address"]]):
-            append_lead(lead)
-
-        if interrupted:
-            # The session that would carry a goodbye is itself what ended — nothing
-            # left to say it to.
-            return
-
-        await self.session.generate_reply(
-            instructions=(
-                "Thank the caller warmly for their time and say a brief goodbye. "
-                "If any contact details were collected, mention someone will follow "
-                "up soon; if not, just thank them for their time either way. Don't "
-                "offer to keep helping — this is the end of the call."
-            )
-        )
-        # ponytail: the call ends when the caller hangs up, same as a real phone
-        # call — not by this code force-ending the room. generate_reply() only
-        # fires one turn and doesn't wait for it to finish playing or for any
-        # follow-up exchange, so calling delete_room() right after it raced the
-        # goodbye and cut it off mid-flight. Revisit with a proper "wait for full
-        # playout + a real close signal" if outbound telephony needs an explicit
-        # hangup later.
+            logger.exception("send_whatsapp_info: failed to send WhatsApp template")
+            return "The WhatsApp message failed to send."
+        return "WhatsApp message sent."
 
 
 server = AgentServer()
@@ -292,11 +306,10 @@ async def my_agent(ctx: JobContext):
         "room": ctx.room.name,
     }
 
-    # Phonic (a speech-to-speech realtime model) is set at the session level so it
-    # persists across the handoff to ContactCollectionAgent — no separate STT/TTS/
-    # turn-detection config is needed, Phonic handles audio directly. Same
-    # conversation logic regardless of transport (console, web, inbound, or
-    # outbound telephony) — this entrypoint doesn't distinguish.
+    # Phonic (a speech-to-speech realtime model) is set at the session level — no
+    # separate STT/TTS/turn-detection config is needed, Phonic handles audio
+    # directly. Same conversation logic regardless of transport (console, web,
+    # inbound, or outbound telephony) — this entrypoint doesn't distinguish.
     session = AgentSession(userdata=Userdata(), llm=build_llm())
 
     await session.start(

@@ -19,11 +19,8 @@ One discrete service covered by the Plan (e.g. Nurse Assistance, OTC Medication,
 The agent's opening, unprompted summary of the Plan and its key selling points, delivered before Q&A begins.
 
 **Lead**:
-The name, phone number, email address, and Member Type captured from a caller at the end of a call. Collection is attempted on every call regardless of interest level; if the caller declines, the agent asks once more, then ends the Data Collection Task gracefully with no further pressure. Stored locally only (MVP, `leads.jsonl`) — no CRM integration yet.
+The name, phone number, email address, and Member Type captured from a caller near the end of a call, one field at a time. Collection is attempted on every call regardless of interest level; for each field, if the caller declines, the agent asks once more, then moves on gracefully without it. Member Type is asked earlier, right after the Pitch and before open Q&A (needed to answer coverage questions accurately), and carried forward as a field on the Lead. Stored locally only (MVP, `leads.jsonl`) — no CRM integration yet.
 _Avoid_: Contact, prospect, customer record
-
-**Data Collection Task**:
-The Task/TaskGroup that captures the Lead at the end of a call. Member Type is asked separately, right after the Pitch and before open Q&A (needed to answer coverage questions accurately) — its answer is carried forward and included as a field on the Lead.
 
 ## Resolved gap
 
